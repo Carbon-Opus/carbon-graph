@@ -575,3 +575,35 @@ This section demonstrates how to write and execute GraphQL queries to fetch bloc
 ## Conclusion
 
 This tutorial provides a complete pipeline for indexing blockchain data on Somnia using The Graph! 🔥
+
+# CarbonOpus Subgraph
+
+This subgraph indexes the CarbonOpus protocol on the Somnia chain, providing a rich and queryable API for all on-chain activities related to the `CarbonCoinLauncher` and `CarbonCoin` smart contracts.
+
+## Key Features
+
+-   **Holder Tracking**: Tracks the total number of holders for each token and the balance of each holder.
+-   **Creator Allocation**: Automatically allocates 10% of the total supply to the creator at the time of deployment.
+-   **Comprehensive Event Tracking**: Captures a wide range of events to provide rich data for a live trading market, including:
+    -   `TokensPurchased` and `TokensSold` for detailed economic data.
+    -   `Approval` for tracking intent to sell.
+    -   `WhaleIntentRegistered`, `WhaleIntentCancelled`, and `WhaleTradeExecuted` for monitoring large trades.
+    -   `CircuitBreakerTriggered` and `CircuitBreakerReset` for tracking trading pauses.
+    -   `AddressBlacklisted` and `BotDetected` for security and user information.
+
+## Schema
+
+The GraphQL schema (`schema.graphql`) defines the following main entities:
+
+-   `Token`: Represents a `CarbonCoin` token.
+-   `Creator`: Represents the creator of a token.
+-   `User`: Represents a user of the protocol.
+-   `Holder`: Represents a user's balance of a specific token.
+-   `Transaction`: Represents a buy, sell, or transfer transaction.
+-   `Approval`: Represents an ERC20 approval.
+-   `WhaleIntent`: Represents a pending large trade.
+-   `Bot`: Represents a detected bot.
+
+## Getting Started
+
+The `README.md` file in the `carbon-graph` directory contains detailed instructions on how to set up, configure, build, and deploy the subgraph.
