@@ -5,6 +5,7 @@ type Token @entity(immutable: false) {
   symbol: String!
   createdAt: BigInt!
   creationFee: BigInt!
+  creatorAllocation: BigInt!
   graduated: Boolean!
   graduatedAt: BigInt
   dexPair: Bytes

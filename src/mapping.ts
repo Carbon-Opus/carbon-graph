@@ -32,6 +32,8 @@ function getOrCreateUser(address: string): User {
   return user;
 }
 
+const CREATOR_ALLOCATION_PERCENTAGE = BigInt.fromI32(10);
+
 export function handleTokenCreated(event: TokenCreated): void {
   let creator = getOrCreateUser(event.params.creator.toHexString());
 
@@ -42,7 +44,6 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.createdAt = event.block.timestamp;
   token.creationFee = event.params.creationFee;
   token.graduated = false;
-  token.totalHolders = BigInt.fromI32(0);
   token.isCircuitBreakerActive = false;
 
   let contract = CarbonCoin.bind(event.params.tokenAddress);
@@ -50,18 +51,24 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.virtualEth = reserves.value2;
   token.virtualTokens = reserves.value3;
   token.realEthReserves = reserves.value0;
-  token.realTokenSupply = reserves.value1;
   
   let config = contract.getTradeLimits();
-  token.maxSupply = BigInt.fromI32(0); // This needs to be fetched from the BondingCurveConfig
+  let maxSupply = contract.MAX_SUPPLY();
+  token.maxSupply = maxSupply;
   token.graduationThreshold = config.value2;
+
+  let creatorAllocation = maxSupply.times(CREATOR_ALLOCATION_PERCENTAGE).div(BigInt.fromI32(100));
+  token.creatorAllocation = creatorAllocation;
+  token.realTokenSupply = reserves.value1.plus(creatorAllocation);
+  token.totalHolders = BigInt.fromI32(1);
 
   token.price = contract.getCurrentPrice();
 
-  // This is not available in the TokenCreated event
-  // creator.totalFeesCollected = creator.totalFeesCollected.plus(
-  //   event.params.creationFee
-  // );
+  let creatorHolder = new Holder(creator.id + "-" + token.id);
+  creatorHolder.user = creator.id;
+  creatorHolder.token = token.id;
+  creatorHolder.balance = creatorAllocation;
+  creatorHolder.save();
 
   creator.save();
   token.save();
