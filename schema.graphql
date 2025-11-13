@@ -1,0 +1,38 @@
+type Token @entity(immutable: false) {
+  id: ID! # token address
+  creator: Creator!
+  name: String!
+  symbol: String!
+  createdAt: BigInt!
+  creationFee: BigInt!
+  graduated: Boolean!
+  graduatedAt: BigInt
+  dexPair: Bytes
+  transactions: [Transaction!]! @derivedFrom(field: "token")
+  virtualEth: BigInt!
+  virtualTokens: BigInt!
+  maxSupply: BigInt!
+  graduationThreshold: BigInt!
+  realEthReserves: BigInt!
+  realTokenSupply: BigInt!
+  price: BigInt!
+}
+
+type Creator @entity(immutable: false) {
+  id: ID! # creator address
+  tokens: [Token!]! @derivedFrom(field: "creator")
+  createdAt: BigInt!
+  totalFeesCollected: BigInt!
+}
+
+type Transaction @entity(immutable: true) {
+  id: ID! # transaction hash
+  token: Token!
+  type: String! # "buy" or "sell"
+  buyer: Bytes # address of the buyer
+  seller: Bytes # address of the seller
+  ethAmount: BigInt!
+  tokenAmount: BigInt!
+  price: BigInt!
+  timestamp: BigInt!
+}
