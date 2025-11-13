@@ -16,6 +16,13 @@ type Token @entity(immutable: false) {
   realEthReserves: BigInt!
   realTokenSupply: BigInt!
   price: BigInt!
+  totalHolders: BigInt!
+  holders: [Holder!]! @derivedFrom(field: "token")
+  approvals: [Approval!]! @derivedFrom(field: "token")
+  whaleIntents: [WhaleIntent!]! @derivedFrom(field: "token")
+  isCircuitBreakerActive: Boolean!
+  circuitBreakerTriggeredAt: BigInt
+  circuitBreakerDuration: BigInt
 }
 
 type Creator @entity(immutable: false) {
@@ -25,14 +32,58 @@ type Creator @entity(immutable: false) {
   totalFeesCollected: BigInt!
 }
 
+type User @entity(immutable: false) {
+  id: ID! # user address
+  tokens: [Holder!]! @derivedFrom(field: "user")
+  approvals: [Approval!]! @derivedFrom(field: "owner")
+  whaleIntents: [WhaleIntent!]! @derivedFrom(field: "trader")
+  blacklisted: Boolean!
+  bots: [Bot!]! @derivedFrom(field: "user")
+}
+
+type Holder @entity(immutable: false) {
+  id: ID! # user address + token address
+  user: User!
+  token: Token!
+  balance: BigInt!
+}
+
 type Transaction @entity(immutable: true) {
   id: ID! # transaction hash
   token: Token!
-  type: String! # "buy" or "sell"
-  buyer: Bytes # address of the buyer
-  seller: Bytes # address of the seller
+  type: String! # "buy", "sell", or "transfer"
+  from: Bytes! # address of the sender
+  to: Bytes! # address of the receiver
   ethAmount: BigInt!
   tokenAmount: BigInt!
   price: BigInt!
+  timestamp: BigInt!
+}
+
+type Approval @entity(immutable: true) {
+  id: ID! # transaction hash + log index
+  token: Token!
+  owner: User!
+  spender: Bytes!
+  value: BigInt!
+  timestamp: BigInt!
+}
+
+type WhaleIntent @entity(immutable: false) {
+  id: ID! # token address + user address
+  token: Token!
+  trader: User!
+  amount: BigInt!
+  isBuy: Boolean!
+  executeAfter: BigInt!
+  timestamp: BigInt!
+  cancelled: Boolean!
+  executed: Boolean!
+}
+
+type Bot @entity(immutable: true) {
+  id: ID! # transaction hash + log index
+  user: User!
+  reason: String!
   timestamp: BigInt!
 }

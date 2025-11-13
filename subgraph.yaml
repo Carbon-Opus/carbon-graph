@@ -16,6 +16,12 @@ dataSources:
       entities:
         - Token
         - Creator
+        - User
+        - Holder
+        - Transaction
+        - Approval
+        - WhaleIntent
+        - Bot
       abis:
         - name: CarbonCoinLauncher
           file: ./ref/abis/CarbonCoinLauncher.json
@@ -37,14 +43,37 @@ templates:
         - Token
         - Creator
         - Transaction
+        - User
+        - Holder
+        - Approval
+        - WhaleIntent
+        - Bot
       abis:
         - name: CarbonCoin
           file: ./ref/abis/CarbonCoin.json
       eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Graduated(indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleGraduated
         - event: TokensPurchased(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTokensPurchased
         - event: TokensSold(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTokensSold
-        - event: Graduated(indexed address,indexed address,uint256,uint256,uint256,uint256)
-          handler: handleGraduated
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: WhaleIntentRegistered(indexed address,uint256,bool,uint256,uint256)
+          handler: handleWhaleIntentRegistered
+        - event: WhaleIntentCancelled(indexed address,uint256)
+          handler: handleWhaleIntentCancelled
+        - event: WhaleTradeExecuted(indexed address,uint256,bool,uint256)
+          handler: handleWhaleTradeExecuted
+        - event: CircuitBreakerTriggered(string,uint256,uint256)
+          handler: handleCircuitBreakerTriggered
+        - event: CircuitBreakerReset(uint256)
+          handler: handleCircuitBreakerReset
+        - event: AddressBlacklisted(indexed address,bool,uint256)
+          handler: handleAddressBlacklisted
+        - event: BotDetected(indexed address,string,uint256)
+          handler: handleBotDetected
       file: ./src/mapping.ts
