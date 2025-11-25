@@ -108,9 +108,9 @@ The `src` directory contains the majority of the application's source code and i
 *   **Formatting:** The project uses Prettier for code formatting. Please format your code before committing.
 *   **Imports:** Never import "lodash" into files as it is auto-imported via "Vite".  Ex: "import _ from 'lodash';" dont add this ever to my code!
 
-# CarbonOpus Contracts (`CarbonCoinLauncher` & `CarbonCoin`)
+# CarbonOpus Contracts (`CarbonCoinLauncher`, `CarbonCoin`, & `CarbonOpus`)
 
-The following section provides context for interacting with the CarbonOpus smart contracts, specifically `CarbonCoinLauncher` and `CarbonCoin`. It is intended for Dapp developers and as a reference for understanding the system's mechanics.
+This document provides context for interacting with the CarbonOpus smart contracts, specifically `CarbonCoinLauncher`, `CarbonCoin`, and `CarbonOpus`. It is intended for Dapp developers and as a reference for understanding the system's mechanics.
 
 ## 1. Overview
 
@@ -118,6 +118,7 @@ The CarbonOpus system is a two-part ecosystem for launching and trading new toke
 
 1.  **`CarbonCoinLauncher.sol`**: A factory contract that allows anyone to create their own `CarbonCoin` token for a small fee.
 2.  **`CarbonCoin.sol`**: The token contract itself. Each token operates on a bonding curve for initial price discovery and trading. Once it gains enough traction (liquidity), it "graduates" by migrating its liquidity to a decentralized exchange (DEX).
+3.  **`CarbonOpus.sol`**: An ERC-1155 NFT contract for minting and buying music.
 
 ---
 
@@ -253,6 +254,90 @@ When the contract's ETH balance (`realEthReserves`) reaches the `GRADUATION_THRE
 -   **UI Change:** The Dapp should replace its native "buy/sell" interface with a link or widget that directs users to the token's trading page on the DEX. The address of the new DEX pair can be found in the `Graduated` event or by calling `dexPair()` on the `CarbonCoin` contract.
 -   **Trading:** All future trades happen on the DEX, not the `CarbonCoin` contract.
 
+---
+
+## 4. `CarbonOpus` - The Music NFT Marketplace
+
+The `CarbonOpus` contract is an ERC-1155 NFT marketplace designed for artists to sell their music.
+
+### Key Purpose
+
+-   To allow artists to mint their music as NFTs.
+-   To enable users to purchase these music NFTs.
+-   To distribute royalties from sales to artists and referrers.
+-   To collect a protocol fee on each transaction.
+
+### Dapp Integration: Minting and Purchasing Music
+
+#### **Minting a Song (for Artists)**
+
+An artist can mint a new song NFT by calling `mintMusic`:
+
+```solidity
+function mintMusic(address receiver, uint256 price, uint256 referralPct) external;
+```
+
+-   **Parameters:**
+    -   `receiver`: The address that will own the newly minted song (usually the artist).
+    -   `price`: The price in ETH for one edition of the song.
+    -   `referralPct`: The percentage of the sale price (in basis points) that will be given to a referrer.
+-   **Event:** The `SongMinted` event is emitted, which a Dapp can use to track new songs.
+
+#### **Purchasing a Song**
+
+A user can purchase a song NFT by calling `purchaseMusic`:
+
+```solidity
+function purchaseMusic(address receiver, uint256 tokenId, address referrer) external payable;
+```
+
+-   **Parameters:**
+    -   `receiver`: The address that will receive the purchased NFT.
+    -   `tokenId`: The ID of the song to purchase.
+    -   `referrer`: An optional address of a user who referred the sale.
+-   **Value:** The caller must send ETH equal to the song's `price`.
+-   **Events:**
+    -   `SongPurchased`: Indicates a successful purchase.
+    -   `RewardsDistributed`: Details how the payment was split between the artist, referrer, and protocol.
+
+#### **Batch Purchasing**
+
+Users can buy multiple songs in one transaction using `purchaseBatch`:
+
+```solidity
+function purchaseBatch(address receiver, uint256[] memory tokenIds, address[] memory referrers) external payable;
+```
+
+### Managing Songs and Rewards
+
+#### **For Artists:**
+
+-   `updateSongPrice(uint256 tokenId, uint256 newPrice)`: Allows an artist to change the price of their song.
+-   `updateSongReferralPct(uint256 tokenId, uint256 newPct)`: Allows an artist to change the referral percentage.
+
+#### **For All Users:**
+
+-   `claimRewards(address payable receiver)`: Allows any user (artist or referrer) to withdraw their accumulated ETH rewards.
+-   `rewards(address user)`: A public mapping to check a user's claimable rewards.
+-   `musicBalance(address user)`: Returns the token IDs and balances of songs owned by a user.
+
+### Administrative Functions
+
+These functions are restricted to the contract owner or a designated manager:
+
+-   `updateProtocolFee(uint256 newFee)`: Change the protocol fee.
+-   `updateTreasury(address newTreasury)`: Change the address where protocol fees are sent.
+-   `updatePriceScaleManager(address newManager)`: Transfer the `priceScaleManager` role.
+-   `scaleSongPrice(uint256 tokenId, uint256 newPrice)`: A privileged function for the `priceScaleManager` to update a song's price.
+-   `setURI(string memory newUri)`: Update the base URI for the token metadata.
+
+### Tokenomics and Fees
+
+-   **Protocol Fee:** A percentage of every sale is sent to the treasury. The fee is set by `protocolFee` (in basis points).
+-   **Referral Fee:** A percentage of the sale, set by the artist, is awarded to a referrer.
+-   **Artist's Share:** The remainder of the sale price goes to the artist.
+
+---
 
 # Protofire Subgraph
 
@@ -607,3 +692,8 @@ The GraphQL schema (`schema.graphql`) defines the following main entities:
 ## Getting Started
 
 The `README.md` file in the `carbon-graph` directory contains detailed instructions on how to set up, configure, build, and deploy the subgraph.
+
+Deployed to https://proxy.somnia.chain.love/subgraphs/name/somnia-testnet/carbon-opus-staging/graphql
+
+Subgraph endpoints:
+Queries (HTTP):     https://proxy.somnia.chain.love/subgraphs/name/somnia-testnet/carbon-opus-staging

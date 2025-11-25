@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "codegen": "npx graph codegen",
-    "build": "npx graph build",
-    "deploy": "npx graph deploy --node https://proxy.somnia.chain.love/graph/somnia-testnet --version-label 0.0.1 carbon-opus-graph --access-token=$GRAPH_ACCESS_TOKEN"
+    "codegen": "graph codegen",
+    "build": "graph build",
+    "deploy": "graph deploy carbon-opus-staging --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key ML9XZM6P95FMEWSWP9770NS5B"
   },
   "repository": {
     "type": "git",

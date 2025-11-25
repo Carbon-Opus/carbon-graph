@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x538203da70651B577135a27479ceDc0A26F32539"
       abi: CarbonCoinLauncher
-      startBlock: 0 # TODO: Replace with the block number where the contract was deployed
+      startBlock: 208904911
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -25,9 +25,49 @@ dataSources:
       abis:
         - name: CarbonCoinLauncher
           file: ./ref/abis/CarbonCoinLauncher.json
+        - name: CarbonCoin
+          file: ./ref/abis/CarbonCoin.json
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,uint256,uint256)
           handler: handleTokenCreated
+      file: ./src/mapping.ts
+  - kind: ethereum
+    name: CarbonOpus
+    network: somnia-testnet
+    source:
+      address: "0x328Eb9CabBAAF802591bF7F7B358fA4F8B114995"
+      abi: CarbonOpus
+      startBlock: 237427453
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Song
+        - Artist
+        - Buyer
+        - Referrer
+        - SongPurchase
+        - Reward
+        - Protocol
+      abis:
+        - name: CarbonOpus
+          file: ./ref/abis/CarbonOpus.json
+      eventHandlers:
+        - event: SongMinted(indexed uint256,indexed address,uint256,uint256)
+          handler: handleSongMinted
+        - event: SongPurchased(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleSongPurchased
+        - event: SongPriceUpdated(indexed uint256,uint256)
+          handler: handleSongPriceUpdated
+        - event: SongPriceScaled(indexed uint256,uint256)
+          handler: handleSongPriceScaled
+        - event: SongReferralPctUpdated(indexed uint256,uint256)
+          handler: handleSongReferralPctUpdated
+        - event: RewardsClaimed(indexed address,uint256)
+          handler: handleRewardsClaimed
+        - event: RewardsDistributed(indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleRewardsDistributed
       file: ./src/mapping.ts
 templates:
   - kind: ethereum

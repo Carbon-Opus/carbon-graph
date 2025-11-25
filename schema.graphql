@@ -88,3 +88,56 @@ type Bot @entity(immutable: true) {
   reason: String!
   timestamp: BigInt!
 }
+
+type Song @entity(immutable: false) {
+  id: ID! # tokenID
+  artist: Artist!
+  price: BigInt!
+  referralPct: BigInt!
+  createdAt: BigInt!
+  purchases: [SongPurchase!]! @derivedFrom(field: "song")
+}
+
+type Artist @entity(immutable: false) {
+  id: ID! # artist address
+  songs: [Song!]! @derivedFrom(field: "artist")
+  rewards: BigInt!
+  claimedRewards: [Reward!]! @derivedFrom(field: "artist")
+}
+
+type Buyer @entity(immutable: false) {
+  id: ID! # buyer address
+  purchases: [SongPurchase!]! @derivedFrom(field: "buyer")
+}
+
+type Referrer @entity(immutable: false) {
+  id: ID! # referrer address
+  referrals: [SongPurchase!]! @derivedFrom(field: "referrer")
+  rewards: BigInt!
+  claimedRewards: [Reward!]! @derivedFrom(field: "referrer")
+}
+
+type SongPurchase @entity(immutable: true) {
+  id: ID! # transaction hash
+  song: Song!
+  buyer: Buyer!
+  referrer: Referrer
+  price: BigInt!
+  timestamp: BigInt!
+}
+
+type Reward @entity(immutable: true) {
+  id: ID! # transaction hash + log index
+  artist: Artist
+  referrer: Referrer
+  amount: BigInt!
+  timestamp: BigInt!
+}
+
+type Protocol @entity(immutable: false) {
+  id: ID!
+  totalRewardsClaimed: BigInt!
+  totalRewardsDistributed: BigInt!
+  protocolFee: BigInt!
+  treasury: Bytes!
+}
