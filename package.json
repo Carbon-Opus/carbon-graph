@@ -7,7 +7,7 @@
     "test": "test",
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy carbon-opus-staging --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key ML9XZM6P95FMEWSWP9770NS5B"
+    "deploy": "graph deploy carbon-opus-staging --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key"
   },
   "repository": {
     "type": "git",
