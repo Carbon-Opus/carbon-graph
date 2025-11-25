@@ -3,35 +3,6 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: CarbonCoinLauncher
-    network: somnia-testnet
-    source:
-      address: "0x538203da70651B577135a27479ceDc0A26F32539"
-      abi: CarbonCoinLauncher
-      startBlock: 208904911
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.7
-      language: wasm/assemblyscript
-      entities:
-        - Token
-        - Creator
-        - User
-        - Holder
-        - Transaction
-        - Approval
-        - WhaleIntent
-        - Bot
-      abis:
-        - name: CarbonCoinLauncher
-          file: ./ref/abis/CarbonCoinLauncher.json
-        - name: CarbonCoin
-          file: ./ref/abis/CarbonCoin.json
-      eventHandlers:
-        - event: TokenCreated(indexed address,indexed address,string,string,uint256,uint256)
-          handler: handleTokenCreated
-      file: ./src/mapping.ts
-  - kind: ethereum
     name: CarbonOpus
     network: somnia-testnet
     source:
@@ -68,7 +39,36 @@ dataSources:
           handler: handleRewardsClaimed
         - event: RewardsDistributed(indexed address,indexed address,uint256,uint256,uint256)
           handler: handleRewardsDistributed
-      file: ./src/mapping.ts
+      file: ./src/carbonOpusMapping.ts
+  - kind: ethereum
+    name: CarbonCoinLauncher
+    network: somnia-testnet
+    source:
+      address: "0x538203da70651B577135a27479ceDc0A26F32539"
+      abi: CarbonCoinLauncher
+      startBlock: 208904911
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Creator
+        - User
+        - Holder
+        - Transaction
+        - Approval
+        - WhaleIntent
+        - Bot
+      abis:
+        - name: CarbonCoinLauncher
+          file: ./ref/abis/CarbonCoinLauncher.json
+        - name: CarbonCoin
+          file: ./ref/abis/CarbonCoin.json
+      eventHandlers:
+        - event: TokenCreated(indexed address,indexed address,string,string,uint256,uint256)
+          handler: handleTokenCreated
+      file: ./src/carbonCoinMapping.ts
 templates:
   - kind: ethereum
     name: CarbonCoin
@@ -116,4 +116,4 @@ templates:
           handler: handleAddressBlacklisted
         - event: BotDetected(indexed address,string,uint256)
           handler: handleBotDetected
-      file: ./src/mapping.ts
+      file: ./src/carbonCoinMapping.ts
