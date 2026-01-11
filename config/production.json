@@ -1,0 +1,7 @@
+{
+  "network": "mainnet",
+  "carbonOpusAddress": "0x0000000000000000000000000000000000000000",
+  "carbonOpusStartBlock": 0,
+  "carbonCoinLauncherAddress": "0x0000000000000000000000000000000000000000",
+  "carbonCoinLauncherStartBlock": 0
+}

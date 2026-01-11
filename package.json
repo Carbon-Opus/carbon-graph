@@ -1,13 +1,15 @@
 {
   "name": "carbon-graph",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Subgraph for CarbonOpus",
-  "main": "index.js",
   "scripts": {
     "test": "test",
-    "codegen": "graph codegen",
-    "build": "graph build",
-    "deploy": "graph deploy carbon-opus-staging --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key"
+    "codegen": "npx graph codegen",
+    "build": "npx graph build",
+    "prepare-stg": "mustache config/staging.json subgraph.template.yaml > subgraph.yaml",
+    "prepare-prd": "mustache config/production.json subgraph.template.yaml > subgraph.yaml",
+    "deploy-stg": "npm run prepare-stg && graph codegen && graph build && graph deploy carbon-opus-staging --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key",
+    "deploy-prd": "npm run prepare-prd && graph codegen && graph build && graph deploy carbon-opus-production --node https://api.subgraph.somnia.network/deploy --ipfs https://api.subgraph.somnia.network/ipfs --deploy-key"
   },
   "repository": {
     "type": "git",

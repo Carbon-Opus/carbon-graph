@@ -1,41 +1,49 @@
-import { BigInt, Address, log } from "@graphprotocol/graph-ts";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import {
-  SongMinted,
+  SongCreated,
   SongPurchased,
   SongPriceUpdated,
   SongPriceScaled,
   SongReferralPctUpdated,
   RewardsClaimed,
   RewardsDistributed,
+  OwnershipTransferred,
+  ProtocolFeeUpdated,
+  TreasuryUpdated,
+  ControllerUpdated,
+  MemberAddressUpdated,
 } from "../generated/CarbonOpus/CarbonOpus";
 import { Song, Artist, Buyer, Referrer, SongPurchase, Reward, Protocol } from "../generated/schema";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-function getOrCreateArtist(address: string): Artist {
-  let artist = Artist.load(address);
+function getOrCreateArtist(memberId: Bytes): Artist {
+  let artist = Artist.load(memberId);
   if (artist == null) {
-    artist = new Artist(address);
+    artist = new Artist(memberId);
     artist.rewards = BigInt.fromI32(0);
+    artist.address = Address.fromString(ZERO_ADDRESS);
     artist.save();
   }
   return artist;
 }
 
-function getOrCreateBuyer(address: string): Buyer {
-  let buyer = Buyer.load(address);
+function getOrCreateBuyer(memberId: Bytes): Buyer {
+  let buyer = Buyer.load(memberId);
   if (buyer == null) {
-    buyer = new Buyer(address);
+    buyer = new Buyer(memberId);
+    buyer.address = Address.fromString(ZERO_ADDRESS);
     buyer.save();
   }
   return buyer;
 }
 
-function getOrCreateReferrer(address: string): Referrer {
-  let referrer = Referrer.load(address);
+function getOrCreateReferrer(memberId: Bytes): Referrer {
+  let referrer = Referrer.load(memberId);
   if (referrer == null) {
-    referrer = new Referrer(address);
+    referrer = new Referrer(memberId);
     referrer.rewards = BigInt.fromI32(0);
+    referrer.address = Address.fromString(ZERO_ADDRESS);
     referrer.save();
   }
   return referrer;
@@ -49,13 +57,15 @@ function getOrCreateProtocol(): Protocol {
     protocol.totalRewardsDistributed = BigInt.fromI32(0);
     protocol.protocolFee = BigInt.fromI32(0);
     protocol.treasury = Address.fromString(ZERO_ADDRESS);
+    protocol.owner = Address.fromString(ZERO_ADDRESS);
+    protocol.controller = Address.fromString(ZERO_ADDRESS);
     protocol.save();
   }
   return protocol;
 }
 
-export function handleSongMinted(event: SongMinted): void {
-  let artist = getOrCreateArtist(event.params.artist.toHexString());
+export function handleSongCreated(event: SongCreated): void {
+  let artist = getOrCreateArtist(event.params.artist);
   let song = new Song(event.params.tokenId.toString());
   song.artist = artist.id;
   song.price = event.params.price;
@@ -70,8 +80,8 @@ export function handleSongPurchased(event: SongPurchased): void {
     return;
   }
 
-  let buyer = getOrCreateBuyer(event.params.buyer.toHexString());
-  let referrer = getOrCreateReferrer(event.params.referrer.toHexString());
+  let buyer = getOrCreateBuyer(event.params.buyer);
+  let referrer = getOrCreateReferrer(event.params.referrer);
 
   let purchase = new SongPurchase(event.transaction.hash.toHexString());
   purchase.song = song.id;
@@ -118,14 +128,15 @@ export function handleRewardsClaimed(event: RewardsClaimed): void {
   reward.amount = event.params.amount;
   reward.timestamp = event.block.timestamp;
 
-  let artist = Artist.load(event.params.account.toHexString());
+  let memberId = event.params.memberId;
+  let artist = Artist.load(memberId);
   if (artist != null) {
     artist.rewards = artist.rewards.minus(event.params.amount);
     artist.save();
     reward.artist = artist.id;
   }
 
-  let referrer = Referrer.load(event.params.account.toHexString());
+  let referrer = Referrer.load(memberId);
   if (referrer != null) {
     referrer.rewards = referrer.rewards.minus(event.params.amount);
     referrer.save();
@@ -139,8 +150,8 @@ export function handleRewardsClaimed(event: RewardsClaimed): void {
 
 export function handleRewardsDistributed(event: RewardsDistributed): void {
   let protocol = getOrCreateProtocol();
-  let artist = getOrCreateArtist(event.params.artist.toHexString());
-  let referrer = getOrCreateReferrer(event.params.referrer.toHexString());
+  let artist = getOrCreateArtist(event.params.artist);
+  let referrer = getOrCreateReferrer(event.params.referrer);
 
   artist.rewards = artist.rewards.plus(event.params.artistAmount);
   artist.save();
@@ -153,4 +164,49 @@ export function handleRewardsDistributed(event: RewardsDistributed): void {
   protocol.totalRewardsDistributed = protocol.totalRewardsDistributed.plus(event.params.artistAmount).plus(event.params.referrerAmount);
   protocol.protocolFee = protocol.protocolFee.plus(event.params.protocolFee);
   protocol.save();
+}
+
+export function handleOwnershipTransferred(event: OwnershipTransferred): void {
+  let protocol = getOrCreateProtocol();
+  protocol.owner = event.params.newOwner;
+  protocol.save();
+}
+
+export function handleProtocolFeeUpdated(event: ProtocolFeeUpdated): void {
+  let protocol = getOrCreateProtocol();
+  protocol.protocolFee = event.params.newFee;
+  protocol.save();
+}
+
+export function handleTreasuryUpdated(event: TreasuryUpdated): void {
+  let protocol = getOrCreateProtocol();
+  protocol.treasury = event.params.newTreasury;
+  protocol.save();
+}
+
+export function handleControllerUpdated(event: ControllerUpdated): void {
+  let protocol = getOrCreateProtocol();
+  protocol.controller = event.params.newController;
+  protocol.save();
+}
+
+export function handleMemberAddressUpdated(event: MemberAddressUpdated): void {
+  let memberId = event.params.memberId;
+  let artist = Artist.load(memberId);
+  if (artist != null) {
+    artist.address = event.params.newAddress;
+    artist.save();
+  }
+
+  let buyer = Buyer.load(memberId);
+  if (buyer != null) {
+    buyer.address = event.params.newAddress;
+    buyer.save();
+  }
+
+  let referrer = Referrer.load(memberId);
+  if (referrer != null) {
+    referrer.address = event.params.newAddress;
+    referrer.save();
+  }
 }

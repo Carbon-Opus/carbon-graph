@@ -1,6 +1,13 @@
 import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   TokenCreated,
+  CreationFeeUpdated,
+  FeesWithdrawn,
+  LauncherPaused,
+  LauncherUnpaused,
+  MaxTokensPerCreatorUpdated,
+  OwnershipTransferred,
+  TokenGraduated,
 } from "../generated/CarbonCoinLauncher/CarbonCoinLauncher";
 import {
   Transfer,
@@ -16,17 +23,39 @@ import {
   CircuitBreakerReset,
   AddressBlacklisted,
   BotDetected,
+  AddressWhitelisted,
+  PriceUpdate,
+  TradingPaused,
+  TradingUnpaused,
+  Paused,
+  Unpaused,
 } from "../generated/templates/CarbonCoin/CarbonCoin";
-import { Token, Transaction, User, Holder, WhaleIntent, Bot, Approval as ApprovalEntity } from "../generated/schema";
+import { Token, Transaction, User, Holder, WhaleIntent, Bot, Approval as ApprovalEntity, Launcher } from "../generated/schema";
 import { CarbonCoin as CarbonCoinTemplate } from "../generated/templates";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
+function getOrCreateLauncher(): Launcher {
+  let launcher = Launcher.load("1");
+  if (launcher == null) {
+    launcher = new Launcher("1");
+    launcher.owner = Address.fromString(ZERO_ADDRESS);
+    launcher.creationFee = BigInt.fromI32(0);
+    launcher.maxTokensPerCreator = BigInt.fromI32(0);
+    launcher.paused = false;
+    launcher.totalFeesCollected = BigInt.fromI32(0);
+    launcher.totalTokensCreated = BigInt.fromI32(0);
+    launcher.save();
+  }
+  return launcher;
+}
 
 function getOrCreateUser(address: string): User {
   let user = User.load(address);
   if (user == null) {
     user = new User(address);
     user.blacklisted = false;
+    user.whitelisted = false;
     user.save();
   }
   return user;
@@ -36,6 +65,9 @@ const CREATOR_ALLOCATION_PERCENTAGE = BigInt.fromI32(10);
 
 export function handleTokenCreated(event: TokenCreated): void {
   let creator = getOrCreateUser(event.params.creator.toHexString());
+  let launcher = getOrCreateLauncher();
+  launcher.totalTokensCreated = launcher.totalTokensCreated.plus(BigInt.fromI32(1));
+  launcher.save();
 
   let token = new Token(event.params.tokenAddress.toHexString());
   token.creator = creator.id;
@@ -45,6 +77,10 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.creationFee = event.params.creationFee;
   token.graduated = false;
   token.isCircuitBreakerActive = false;
+  token.isPaused = false;
+  token.isTradingPaused = false;
+  token.lastPriceUpdate = BigInt.fromI32(0);
+  token.volatilityMoveCount = BigInt.fromI32(0);
 
   let contract = CarbonCoin.bind(event.params.tokenAddress);
   let reserves = contract.getReserves();
@@ -290,4 +326,103 @@ export function handleBotDetected(event: BotDetected): void {
   bot.reason = event.params.reason;
   bot.timestamp = event.block.timestamp;
   bot.save();
+}
+
+// --- CarbonCoinLauncher Handlers ---
+
+export function handleCreationFeeUpdated(event: CreationFeeUpdated): void {
+  let launcher = getOrCreateLauncher();
+  launcher.creationFee = event.params.newFee;
+  launcher.save();
+}
+
+export function handleFeesWithdrawn(event: FeesWithdrawn): void {
+  let launcher = getOrCreateLauncher();
+  launcher.totalFeesCollected = launcher.totalFeesCollected.minus(event.params.amount);
+  launcher.save();
+}
+
+export function handleLauncherPaused(event: LauncherPaused): void {
+  let launcher = getOrCreateLauncher();
+  launcher.paused = true;
+  launcher.save();
+}
+
+export function handleLauncherUnpaused(event: LauncherUnpaused): void {
+  let launcher = getOrCreateLauncher();
+  launcher.paused = false;
+  launcher.save();
+}
+
+export function handleMaxTokensPerCreatorUpdated(event: MaxTokensPerCreatorUpdated): void {
+  let launcher = getOrCreateLauncher();
+  launcher.maxTokensPerCreator = event.params.newMax;
+  launcher.save();
+}
+
+export function handleOwnershipTransferred(event: OwnershipTransferred): void {
+  let launcher = getOrCreateLauncher();
+  launcher.owner = event.params.newOwner;
+  launcher.save();
+}
+
+export function handleTokenGraduated(event: TokenGraduated): void {
+  let token = Token.load(event.params.tokenAddress.toHexString());
+  if (token != null) {
+    token.graduated = true;
+    token.graduatedAt = event.block.timestamp;
+    token.dexPair = event.params.dexPair;
+    token.save();
+  }
+}
+
+// --- CarbonCoin Handlers ---
+
+export function handleAddressWhitelisted(event: AddressWhitelisted): void {
+  let user = getOrCreateUser(event.params.account.toHexString());
+  user.whitelisted = event.params.whitelisted;
+  user.save();
+}
+
+export function handlePriceUpdate(event: PriceUpdate): void {
+  let token = Token.load(event.address.toHexString());
+  if (token != null) {
+    token.price = event.params.price;
+    token.realEthReserves = event.params.ethReserves;
+    token.realTokenSupply = event.params.tokenSupply;
+    token.lastPriceUpdate = event.block.timestamp;
+    token.save();
+  }
+}
+
+export function handleTradingPaused(event: TradingPaused): void {
+  let token = Token.load(event.address.toHexString());
+  if (token != null) {
+    token.isTradingPaused = true;
+    token.save();
+  }
+}
+
+export function handleTradingUnpaused(event: TradingUnpaused): void {
+  let token = Token.load(event.address.toHexString());
+  if (token != null) {
+    token.isTradingPaused = false;
+    token.save();
+  }
+}
+
+export function handlePaused(event: Paused): void {
+  let token = Token.load(event.address.toHexString());
+  if (token != null) {
+    token.isPaused = true;
+    token.save();
+  }
+}
+
+export function handleUnpaused(event: Unpaused): void {
+  let token = Token.load(event.address.toHexString());
+  if (token != null) {
+    token.isPaused = false;
+    token.save();
+  }
 }

@@ -24,6 +24,10 @@ type Token @entity(immutable: false) {
   isCircuitBreakerActive: Boolean!
   circuitBreakerTriggeredAt: BigInt
   circuitBreakerDuration: BigInt
+  isPaused: Boolean!
+  isTradingPaused: Boolean!
+  lastPriceUpdate: BigInt!
+  volatilityMoveCount: BigInt!
 }
 
 type Creator @entity(immutable: false) {
@@ -39,6 +43,7 @@ type User @entity(immutable: false) {
   approvals: [Approval!]! @derivedFrom(field: "owner")
   whaleIntents: [WhaleIntent!]! @derivedFrom(field: "trader")
   blacklisted: Boolean!
+  whitelisted: Boolean!
   bots: [Bot!]! @derivedFrom(field: "user")
 }
 
@@ -99,19 +104,22 @@ type Song @entity(immutable: false) {
 }
 
 type Artist @entity(immutable: false) {
-  id: ID! # artist address
+  id: Bytes! # memberId
+  address: Bytes!
   songs: [Song!]! @derivedFrom(field: "artist")
   rewards: BigInt!
   claimedRewards: [Reward!]! @derivedFrom(field: "artist")
 }
 
 type Buyer @entity(immutable: false) {
-  id: ID! # buyer address
+  id: Bytes! # memberId
+  address: Bytes!
   purchases: [SongPurchase!]! @derivedFrom(field: "buyer")
 }
 
 type Referrer @entity(immutable: false) {
-  id: ID! # referrer address
+  id: Bytes! # memberId
+  address: Bytes!
   referrals: [SongPurchase!]! @derivedFrom(field: "referrer")
   rewards: BigInt!
   claimedRewards: [Reward!]! @derivedFrom(field: "referrer")
@@ -140,4 +148,16 @@ type Protocol @entity(immutable: false) {
   totalRewardsDistributed: BigInt!
   protocolFee: BigInt!
   treasury: Bytes!
+  owner: Bytes!
+  controller: Bytes!
+}
+
+type Launcher @entity(immutable: false) {
+  id: ID! # Always "1"
+  owner: Bytes!
+  creationFee: BigInt!
+  maxTokensPerCreator: BigInt!
+  paused: Boolean!
+  totalFeesCollected: BigInt!
+  totalTokensCreated: BigInt!
 }
