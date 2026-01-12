@@ -1,7 +1,7 @@
 {
-  "network": "mainnet",
-  "carbonOpusAddress": "0x0000000000000000000000000000000000000000",
-  "carbonOpusStartBlock": 0,
-  "carbonCoinLauncherAddress": "0x0000000000000000000000000000000000000000",
-  "carbonCoinLauncherStartBlock": 0
+  "network": "somnia",
+  "carbonOpusAddress": "0x1E70aa1599a624880e91103738591C920cCbb925",
+  "carbonOpusStartBlock": 201358790,
+  "carbonCoinLauncherAddress": "0xd6ed8455903CBd94d8F432eC4059197984baA65e",
+  "carbonCoinLauncherStartBlock": 201366065
 }

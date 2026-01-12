@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: CarbonOpus
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x328Eb9CabBAAF802591bF7F7B358fA4F8B114995"
+      address: "0x1E70aa1599a624880e91103738591C920cCbb925"
       abi: CarbonOpus
-      startBlock: 237427454
+      startBlock: 201358790
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -52,11 +52,11 @@ dataSources:
       file: ./src/carbonOpusMapping.ts
   - kind: ethereum
     name: CarbonCoinLauncher
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x538203da70651B577135a27479ceDc0A26F32539"
+      address: "0xd6ed8455903CBd94d8F432eC4059197984baA65e"
       abi: CarbonCoinLauncher
-      startBlock: 208904911
+      startBlock: 201366065
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -96,7 +96,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: CarbonCoin
-    network: somnia-testnet
+    network: somnia
     source:
       abi: CarbonCoin
     mapping:
