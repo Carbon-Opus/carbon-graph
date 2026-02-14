@@ -595,19 +595,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "TreasuryUpdated",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "string",
         "name": "value",
@@ -677,6 +664,11 @@
         "internalType": "bytes32",
         "name": "memberId",
         "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "memberAddress",
+        "type": "address"
       }
     ],
     "name": "claimRewards",
@@ -739,9 +731,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "memberId",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "memberAddress",
+        "type": "address"
       }
     ],
     "name": "musicBalance",
@@ -755,6 +747,19 @@
         "internalType": "uint256[]",
         "name": "",
         "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "name",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -937,24 +942,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "newPrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "scaleSongPrice",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "operator",
         "type": "address"
@@ -1032,6 +1019,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "symbol",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -1053,24 +1053,6 @@
       }
     ],
     "name": "updateController",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "memberId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "memberAddress",
-        "type": "address"
-      }
-    ],
-    "name": "updateMemberMapping",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1120,19 +1102,6 @@
       }
     ],
     "name": "updateSongReferralPct",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newTreasury",
-        "type": "address"
-      }
-    ],
-    "name": "updateTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

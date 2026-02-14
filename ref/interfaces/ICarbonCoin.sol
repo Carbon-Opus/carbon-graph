@@ -105,6 +105,7 @@ interface ICarbonCoin {
   // State tracking events
   event PriceUpdate(uint256 price, uint256 ethReserves, uint256 tokenSupply, uint256 timestamp);
   event LiquiditySnapshot(uint256 ethReserves, uint256 tokenSupply, uint256 timestamp);
+  event CreatorReserveMinted(address indexed creator, uint256 amount, uint256 timestamp);
 
   error Unauthorized();
   error InvalidAmount();
@@ -129,6 +130,11 @@ interface ICarbonCoin {
   error WhaleIntentNotReady();
   error NoWhaleIntentFound();
   error SellAmountTooLarge();
+  error CreatorCannotSellBeforeGraduation();
+
+  function getTotalMaxSupply() external view returns (uint256);
+
+  function getBondingCurveMaxSupply() external view returns (uint256);
 
   function getCurrentPrice() external view returns (uint256);
 

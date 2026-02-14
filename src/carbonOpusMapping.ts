@@ -9,7 +9,6 @@ import {
   RewardsDistributed,
   OwnershipTransferred,
   ProtocolFeeUpdated,
-  TreasuryUpdated,
   ControllerUpdated,
   MemberAddressUpdated,
 } from "../generated/CarbonOpus/CarbonOpus";
@@ -56,7 +55,6 @@ function getOrCreateProtocol(): Protocol {
     protocol.totalRewardsClaimed = BigInt.fromI32(0);
     protocol.totalRewardsDistributed = BigInt.fromI32(0);
     protocol.protocolFee = BigInt.fromI32(0);
-    protocol.treasury = Address.fromString(ZERO_ADDRESS);
     protocol.owner = Address.fromString(ZERO_ADDRESS);
     protocol.controller = Address.fromString(ZERO_ADDRESS);
     protocol.save();
@@ -175,12 +173,6 @@ export function handleOwnershipTransferred(event: OwnershipTransferred): void {
 export function handleProtocolFeeUpdated(event: ProtocolFeeUpdated): void {
   let protocol = getOrCreateProtocol();
   protocol.protocolFee = event.params.newFee;
-  protocol.save();
-}
-
-export function handleTreasuryUpdated(event: TreasuryUpdated): void {
-  let protocol = getOrCreateProtocol();
-  protocol.treasury = event.params.newTreasury;
   protocol.save();
 }
 

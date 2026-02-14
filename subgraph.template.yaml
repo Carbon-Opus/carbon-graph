@@ -43,8 +43,6 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: ProtocolFeeUpdated(uint256)
           handler: handleProtocolFeeUpdated
-        - event: TreasuryUpdated(indexed address)
-          handler: handleTreasuryUpdated
         - event: ControllerUpdated(indexed address)
           handler: handleControllerUpdated
         - event: MemberAddressUpdated(indexed bytes32,indexed address)
@@ -76,10 +74,8 @@ dataSources:
         - name: CarbonCoin
           file: ./ref/abis/CarbonCoin.json
       eventHandlers:
-        - event: TokenCreated(indexed address,indexed address,string,string,uint256,uint256)
+        - event: TokenCreated(indexed address,indexed address,string,string,uint256)
           handler: handleTokenCreated
-        - event: CreationFeeUpdated(uint256,uint256,uint256)
-          handler: handleCreationFeeUpdated
         - event: FeesWithdrawn(indexed address,uint256,uint256)
           handler: handleFeesWithdrawn
         - event: LauncherPaused(uint256)

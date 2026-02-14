@@ -4,7 +4,6 @@ type Token @entity(immutable: false) {
   name: String!
   symbol: String!
   createdAt: BigInt!
-  creationFee: BigInt!
   creatorAllocation: BigInt!
   graduated: Boolean!
   graduatedAt: BigInt
@@ -57,6 +56,7 @@ type Holder @entity(immutable: false) {
 type Transaction @entity(immutable: true) {
   id: ID! # transaction hash
   token: Token!
+  tokenId: ID!
   type: String! # "buy", "sell", or "transfer"
   from: Bytes! # address of the sender
   to: Bytes! # address of the receiver
@@ -147,7 +147,6 @@ type Protocol @entity(immutable: false) {
   totalRewardsClaimed: BigInt!
   totalRewardsDistributed: BigInt!
   protocolFee: BigInt!
-  treasury: Bytes!
   owner: Bytes!
   controller: Bytes!
 }
@@ -155,7 +154,6 @@ type Protocol @entity(immutable: false) {
 type Launcher @entity(immutable: false) {
   id: ID! # Always "1"
   owner: Bytes!
-  creationFee: BigInt!
   maxTokensPerCreator: BigInt!
   paused: Boolean!
   totalFeesCollected: BigInt!

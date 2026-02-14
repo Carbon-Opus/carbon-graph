@@ -1,7 +1,6 @@
 import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   TokenCreated,
-  CreationFeeUpdated,
   FeesWithdrawn,
   LauncherPaused,
   LauncherUnpaused,
@@ -40,7 +39,6 @@ function getOrCreateLauncher(): Launcher {
   if (launcher == null) {
     launcher = new Launcher("1");
     launcher.owner = Address.fromString(ZERO_ADDRESS);
-    launcher.creationFee = BigInt.fromI32(0);
     launcher.maxTokensPerCreator = BigInt.fromI32(0);
     launcher.paused = false;
     launcher.totalFeesCollected = BigInt.fromI32(0);
@@ -73,8 +71,7 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.creator = creator.id;
   token.name = event.params.name;
   token.symbol = event.params.symbol;
-  token.createdAt = event.block.timestamp;
-  token.creationFee = event.params.creationFee;
+  token.createdAt = event.params.timestamp;
   token.graduated = false;
   token.isCircuitBreakerActive = false;
   token.isPaused = false;
@@ -96,7 +93,7 @@ export function handleTokenCreated(event: TokenCreated): void {
   let creatorAllocation = maxSupply.times(CREATOR_ALLOCATION_PERCENTAGE).div(BigInt.fromI32(100));
   token.creatorAllocation = creatorAllocation;
   token.realTokenSupply = reserves.value1.plus(creatorAllocation);
-  token.totalHolders = BigInt.fromI32(1);
+  token.totalHolders = BigInt.fromI32(0);
 
   token.price = contract.getCurrentPrice();
 
@@ -170,6 +167,7 @@ export function handleTokensPurchased(event: TokensPurchased): void {
 
   let transaction = new Transaction(event.transaction.hash.toHexString());
   transaction.token = token.id;
+  transaction.tokenId = token.id;
   transaction.type = "buy";
   transaction.from = event.address; // Contract is the seller
   transaction.to = event.params.buyer;
@@ -185,28 +183,29 @@ export function handleTokensPurchased(event: TokensPurchased): void {
   token.save();
 }
 
-export function handleTokensSold(event: TokensSold): void {
-  let token = Token.load(event.address.toHexString());
-  if (token == null) {
-    return;
-  }
+// export function handleTokensSold(event: TokensSold): void {
+//   let token = Token.load(event.address.toHexString());
+//   if (token == null) {
+//     return;
+//   }
 
-  let transaction = new Transaction(event.transaction.hash.toHexString());
-  transaction.token = token.id;
-  transaction.type = "sell";
-  transaction.from = event.params.seller;
-  transaction.to = event.address; // Contract is the buyer
-  transaction.ethAmount = event.params.ethOut;
-  transaction.tokenAmount = event.params.tokensIn;
-  transaction.price = event.params.newPrice;
-  transaction.timestamp = event.block.timestamp;
-  transaction.save();
+//   let transaction = new Transaction(event.transaction.hash.toHexString());
+//   transaction.token = token.id;
+//   transaction.tokenId = token.id;
+//   transaction.type = "sell";
+//   transaction.from = event.params.seller;
+//   transaction.to = event.address; // Contract is the buyer
+//   transaction.ethAmount = event.params.ethOut;
+//   transaction.tokenAmount = event.params.tokensIn;
+//   transaction.price = event.params.newPrice;
+//   transaction.timestamp = event.block.timestamp;
+//   transaction.save();
 
-  token.realEthReserves = event.params.realEthReserves;
-  token.realTokenSupply = event.params.realTokenSupply;
-  token.price = event.params.newPrice;
-  token.save();
-}
+//   token.realEthReserves = event.params.realEthReserves;
+//   token.realTokenSupply = event.params.realTokenSupply;
+//   token.price = event.params.newPrice;
+//   token.save();
+// }
 
 export function handleGraduated(event: Graduated): void {
   let token = Token.load(event.params.token.toHexString());
@@ -329,12 +328,6 @@ export function handleBotDetected(event: BotDetected): void {
 }
 
 // --- CarbonCoinLauncher Handlers ---
-
-export function handleCreationFeeUpdated(event: CreationFeeUpdated): void {
-  let launcher = getOrCreateLauncher();
-  launcher.creationFee = event.params.newFee;
-  launcher.save();
-}
 
 export function handleFeesWithdrawn(event: FeesWithdrawn): void {
   let launcher = getOrCreateLauncher();

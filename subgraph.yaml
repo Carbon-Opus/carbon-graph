@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: CarbonOpus
-    network: somnia
+    network: somnia-testnet
     source:
-      address: "0x1E70aa1599a624880e91103738591C920cCbb925"
+      address: "0x7D5e460daF618F5D029D3304Fd08dA695e2C0D1E"
       abi: CarbonOpus
-      startBlock: 201358790
+      startBlock: 302453071
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -43,8 +43,6 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: ProtocolFeeUpdated(uint256)
           handler: handleProtocolFeeUpdated
-        - event: TreasuryUpdated(indexed address)
-          handler: handleTreasuryUpdated
         - event: ControllerUpdated(indexed address)
           handler: handleControllerUpdated
         - event: MemberAddressUpdated(indexed bytes32,indexed address)
@@ -52,11 +50,11 @@ dataSources:
       file: ./src/carbonOpusMapping.ts
   - kind: ethereum
     name: CarbonCoinLauncher
-    network: somnia
+    network: somnia-testnet
     source:
-      address: "0xd6ed8455903CBd94d8F432eC4059197984baA65e"
+      address: "0xC6dB99Cd9d6093D9EB8AE82b47E65c68685faAd8"
       abi: CarbonCoinLauncher
-      startBlock: 201366065
+      startBlock: 302453002
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -76,10 +74,8 @@ dataSources:
         - name: CarbonCoin
           file: ./ref/abis/CarbonCoin.json
       eventHandlers:
-        - event: TokenCreated(indexed address,indexed address,string,string,uint256,uint256)
+        - event: TokenCreated(indexed address,indexed address,string,string,uint256)
           handler: handleTokenCreated
-        - event: CreationFeeUpdated(uint256,uint256,uint256)
-          handler: handleCreationFeeUpdated
         - event: FeesWithdrawn(indexed address,uint256,uint256)
           handler: handleFeesWithdrawn
         - event: LauncherPaused(uint256)
@@ -96,7 +92,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: CarbonCoin
-    network: somnia
+    network: somnia-testnet
     source:
       abi: CarbonCoin
     mapping:

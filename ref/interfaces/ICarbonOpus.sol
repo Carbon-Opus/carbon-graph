@@ -50,21 +50,18 @@ interface ICarbonOpus {
     event SongReferralPctUpdated(uint256 indexed tokenId, uint256 newPct);
     event SongPriceScaled(uint256 indexed tokenId, uint256 newPrice);
     event ProtocolFeeUpdated(uint256 newFee);
-    event TreasuryUpdated(address indexed newTreasury);
     event ControllerUpdated(address indexed newController);
     event MemberAddressUpdated(bytes32 indexed memberId, address indexed newAddress);
 
     function createMusic(bytes32 memberId, address memberAddress, uint256 price, uint256 referralPct) external;
     function purchaseMusic(bytes32 memberId, address memberAddress, uint256 tokenId, bytes32 referrer) external;
     function purchaseBatch(bytes32 memberId, address memberAddress, uint256[] memory tokenIds, bytes32[] memory referrers) external;
-    function claimRewards(bytes32 memberId) external;
-    function musicBalance(bytes32 memberId) external view returns (uint256[] memory, uint256[] memory);
+    function claimRewards(bytes32 memberId, address memberAddress) external;
+    function musicBalance(address memberAddress) external view returns (uint256[] memory, uint256[] memory);
 
     function updateSongPrice(uint256 tokenId, uint256 newPrice) external;
     function updateSongReferralPct(uint256 tokenId, uint256 newPct) external;
     function updateProtocolFee(uint256 newFee) external;
-    function updateTreasury(address newTreasury) external;
     function updateController(address newController) external;
-    function scaleSongPrice(uint256 tokenId, uint256 newPrice) external;
     function setURI(string memory newUri) external;
 }
