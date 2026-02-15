@@ -45,7 +45,6 @@ interface ICarbonCoinLauncher {
   );
   event TokenGraduated(
     address indexed tokenAddress,
-    address indexed dexPair,
     uint256 timestamp
   );
   event MaxTokensPerCreatorUpdated(uint256 oldMax, uint256 newMax, uint256 timestamp);

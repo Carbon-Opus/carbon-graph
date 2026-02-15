@@ -26,40 +26,29 @@ pragma solidity 0.8.27;
 
 interface ICarbonCoin {
   struct BondingCurveConfig {
-    uint256 virtualEth;
+    uint256 virtualUsdc;
     uint256 virtualTokens;
+    uint256 creatorReserve;
     uint256 maxSupply;
     uint256 graduationThreshold;
-  }
-
-  struct PriceSnapshot {
-    uint256 price;
-    uint256 timestamp;
-  }
-
-  struct WhaleIntent {
-    uint256 amount;
-    uint256 intentTime;
-    bool isBuy;
-    bool executed;
   }
 
   // Trading events
   event TokensPurchased(
     address indexed buyer,
-    uint256 ethIn,
+    uint256 usdcAmount,
     uint256 tokensOut,
     uint256 newPrice,
-    uint256 realEthReserves,
+    uint256 realUsdcReserves,
     uint256 realTokenSupply,
     uint256 timestamp
   );
   event TokensSold(
     address indexed seller,
     uint256 tokensIn,
-    uint256 ethOut,
+    uint256 usdcOut,
     uint256 newPrice,
-    uint256 realEthReserves,
+    uint256 realUsdcReserves,
     uint256 realTokenSupply,
     uint256 timestamp
   );
@@ -76,35 +65,20 @@ interface ICarbonCoin {
   );
   event Graduated(
     address indexed token,
-    address indexed pair,
     uint256 liquidityTokens,
-    uint256 liquidityEth,
+    uint256 liquidityUsdc,
     uint256 finalPrice,
     uint256 timestamp
   );
 
   // Admin events
-  event BotDetected(address indexed suspect, string reason, uint256 timestamp);
-  event AddressBlacklisted(address indexed account, bool blacklisted, uint256 timestamp);
-  event AddressWhitelisted(address indexed account, bool whitelisted, uint256 timestamp);
   event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
 
-  // Circuit breaker events
-  event CircuitBreakerTriggered(string reason, uint256 timestamp, uint256 duration);
-  event CircuitBreakerReset(uint256 timestamp);
-  event HighPriceImpact(address indexed trader, uint256 priceImpact, uint256 timestamp);
-  event VolatilityWarning(uint256 moveCount, uint256 timestamp);
-
-  // Whale protection events
-  event WhaleIntentRegistered(address indexed trader, uint256 amount, bool isBuy, uint256 executeAfter, uint256 timestamp);
-  event WhaleIntentCancelled(address indexed trader, uint256 timestamp);
-  event WhaleTradeExecuted(address indexed trader, uint256 amount, bool isBuy, uint256 timestamp);
-
   // State tracking events
-  event PriceUpdate(uint256 price, uint256 ethReserves, uint256 tokenSupply, uint256 timestamp);
-  event LiquiditySnapshot(uint256 ethReserves, uint256 tokenSupply, uint256 timestamp);
+  event PriceUpdate(uint256 price, uint256 usdcReserves, uint256 tokenSupply, uint256 timestamp);
+  event LiquiditySnapshot(uint256 usdcSupply, uint256 tokenSupply, uint256 liquidity, uint256 timestamp);
   event CreatorReserveMinted(address indexed creator, uint256 amount, uint256 timestamp);
 
   error Unauthorized();
@@ -114,105 +88,90 @@ interface ICarbonCoin {
   error InsufficientLiquidity();
   error AlreadyGraduated();
   error NotGraduated();
-  error CooldownActive();
-  error ExceedsMaxWallet();
-  error Blacklisted();
-  error ContractCallNotAllowed();
-  error BuyAmountTooHigh();
-  error FeeExceedsMaximum();
   error GraduationCooldownActive();
-  error CircuitBreakerActive();
-  error PriceImpactTooHigh();
-  error ExcessiveVolatility();
-  error TradeSizeTooLarge();
-  error WhaleDelayActive();
   error WhaleIntentRequired();
-  error WhaleIntentNotReady();
-  error NoWhaleIntentFound();
-  error SellAmountTooLarge();
   error CreatorCannotSellBeforeGraduation();
 
+  /**
+   * @notice Get total supply including creator reserve
+   */
   function getTotalMaxSupply() external view returns (uint256);
-
+  /**
+   * @notice Get bonding curve supply (excludes creator reserve)
+   */
   function getBondingCurveMaxSupply() external view returns (uint256);
 
+  /**
+   * @notice Get the current token price in USDC.
+   * @dev Calculates the price based on the bonding curve's virtual and real reserves.
+   * @return The current price of one token in USDC (with 6 decimals for USDC).
+   */
   function getCurrentPrice() external view returns (uint256);
 
-  function calculateTokensOut(uint256 ethIn) external view returns (uint256);
+  /**
+   * @notice Calculate the amount of tokens received for a given USDC input.
+   * @dev The calculation is based on the bonding curve formula and includes the buy fee.
+   * @param usdcIn The amount of USDC to be spent.
+   * @return The amount of tokens that will be received.
+   */
+  function calculateTokensOut(uint256 usdcIn) external view returns (uint256);
 
-  function calculateEthIn(uint256 tokensOut) external view returns (uint256);
+  /**
+   * @notice Calculate the amount of USDC needed to buy a specific amount of tokens.
+   * @dev The calculation is based on the bonding curve formula and includes the buy fee.
+   * @param tokensOut The desired amount of tokens.
+   * @return The amount of USDC required to purchase the specified tokens.
+   */
+  function calculateUsdcIn(uint256 tokensOut) external view returns (uint256);
 
-  function calculateEthOut(uint256 tokensIn) external view returns (uint256);
+  /**
+   * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
+   * @dev The calculation is based on the bonding curve formula and includes the sell fee.
+   * @param tokensIn The amount of tokens to be sold.
+   * @return The amount of USDC that will be received.
+   */
+  function calculateUsdcOut(uint256 tokensIn) external view returns (uint256);
 
-  function buy(uint256 minTokensOut) external payable;
+  /**
+   * @notice Allows a user to buy tokens with USDC using permit (gasless signature).
+   * @dev This is the standard buy function where users pay their own gas.
+   * Uses EIP-2612 permit to avoid separate approval transaction.
+   * @param usdcAmount The amount of USDC to spend.
+   * @param minTokensOut The minimum number of tokens the user is willing to accept.
+   * @param deadline The permit signature deadline.
+   * @param v The recovery byte of the signature.
+   * @param r Half of the ECDSA signature pair.
+   * @param s Half of the ECDSA signature pair.
+   */
+  function buyWithPermit(
+    uint256 usdcAmount,
+    uint256 minTokensOut,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) external;
 
-  function sell(uint256 tokensIn, uint256 minEthOut) external;
+  /**
+   * @notice Allows a user to buy tokens with USDC (standard approval required).
+   * @dev Alternative to buyWithPermit for wallets that don't support permit or for pre-approved USDC.
+   * @param usdcAmount The amount of USDC to spend.
+   * @param minTokensOut The minimum number of tokens the user is willing to accept.
+   */
+  function buy(uint256 usdcAmount, uint256 minTokensOut) external;
 
-  function forceGraduate() external;
-
-  function blacklistAddress(address account, bool blacklisted) external;
-
-  function addToWhitelist(address account) external;
-
-  function removeFromWhitelist(address account) external;
-
-  function pause() external;
-
-  function unpause() external;
-
-  function emergencyWithdraw() external;
-
-  function triggerCircuitBreaker(string memory reason) external;
-
-  function resetCircuitBreaker() external;
-
-  function getCircuitBreakerStatus() external view returns (
-    bool isActive,
-    uint256 triggeredAt,
-    uint256 timeRemaining,
-    uint256 volatilityMoves
-  );
-
-  function cancelWhaleIntent() external;
-
-  function getWhaleIntent(address trader) external view returns (
-    uint256 amount,
-    uint256 intentTime,
-    uint256 executeAfter,
-    bool isBuy,
-    bool executed,
-    bool canExecute
-  );
-
-  function getWhaleCooldown(address trader) external view returns (
-    uint256 lastTradeTime,
-    uint256 nextTradeAvailable,
-    bool canTradeNow
-  );
-
-  function getTradeLimits() external view returns (
-    uint256 _maxTradeSize,
-    uint256 _maxSellPercentage,
-    uint256 _whaleThreshold,
-    uint256 _whaleDelay,
-    uint256 currentMaxSellTokens
-  );
-
-  function getAntiBotInfo() external view returns (
-    uint256 _launchTime,
-    uint256 _timeSinceLaunch,
-    bool _antiBotActive,
-    uint256 _maxBuyEarly,
-    uint256 _cooldownPeriod,
-    uint256 _maxWalletPercentage
-  );
-
-  function getUserCooldown(address user) external view returns (uint256);
+  /**
+   * @notice Allows a user to sell tokens for USDC.
+   * @dev This function is the main entry point for selling tokens.
+   * @param tokensIn The amount of tokens to sell.
+   * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
+   */
+  function sell(uint256 tokensIn, uint256 minUsdcOut) external;
 
   function getReserves() external view returns (
-    uint256 ethReserves,
+    uint256 usdcReserves,
     uint256 tokenSupply,
-    uint256 virtualEth,
+    uint256 virtualUsdc,
     uint256 virtualTokens
   );
 }

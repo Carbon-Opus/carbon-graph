@@ -6,9 +6,9 @@ dataSources:
     name: CarbonOpus
     network: somnia-testnet
     source:
-      address: "0x7D5e460daF618F5D029D3304Fd08dA695e2C0D1E"
+      address: "0xC80e30e1EA5A760093c3F408e6fd20ec2C6f3E1d"
       abi: CarbonOpus
-      startBlock: 302453071
+      startBlock: 307496383
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -52,9 +52,9 @@ dataSources:
     name: CarbonCoinLauncher
     network: somnia-testnet
     source:
-      address: "0xC6dB99Cd9d6093D9EB8AE82b47E65c68685faAd8"
+      address: "0x2FB4737e7F9dd9cB19dDb9820acDFB3974a04128"
       abi: CarbonCoinLauncher
-      startBlock: 302453002
+      startBlock: 307496322
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -62,12 +62,9 @@ dataSources:
       entities:
         - Token
         - Creator
-        - User
-        - Holder
-        - Transaction
-        - Approval
-        - WhaleIntent
-        - Bot
+        - Launcher
+        - FeeReceipt
+        - FeeWithdrawal
       abis:
         - name: CarbonCoinLauncher
           file: ./ref/abis/CarbonCoinLauncher.json
@@ -76,6 +73,8 @@ dataSources:
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,uint256)
           handler: handleTokenCreated
+        - event: TokenGraduated(indexed address,uint256)
+          handler: handleTokenGraduatedFromLauncher
         - event: FeesWithdrawn(indexed address,uint256,uint256)
           handler: handleFeesWithdrawn
         - event: LauncherPaused(uint256)
@@ -85,10 +84,76 @@ dataSources:
         - event: MaxTokensPerCreatorUpdated(uint256,uint256,uint256)
           handler: handleMaxTokensPerCreatorUpdated
         - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
-        - event: TokenGraduated(indexed address,indexed address,uint256)
-          handler: handleTokenGraduated
-      file: ./src/carbonCoinMapping.ts
+          handler: handleLauncherOwnershipTransferred
+        - event: ControllerUpdated(indexed address)
+          handler: handleLauncherControllerUpdated
+        - event: FeeReceived(indexed address,uint256,uint256)
+          handler: handleFeeReceived
+      file: ./src/carbonCoinLauncherMapping.ts
+  - kind: ethereum
+    name: CarbonCoinProtection
+    network: somnia-testnet
+    source:
+      address: "0xD25e3be55804700Bd10C663c5Ad8E7bb9A55afBA"
+      abi: CarbonCoinProtection
+      startBlock: 307496296
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - User
+        - BotDetection
+        - BlacklistEvent
+        - WhitelistEvent
+        - ProtectionEvent
+        - WhaleIntent
+      abis:
+        - name: CarbonCoinProtection
+          file: ./ref/abis/CarbonCoinProtection.json
+      eventHandlers:
+        - event: BotDetected(indexed address,indexed address,string,uint256)
+          handler: handleBotDetected
+        - event: AddressBlacklisted(indexed address,indexed address,bool,uint256)
+          handler: handleAddressBlacklisted
+        - event: AddressWhitelisted(indexed address,indexed address,bool,uint256)
+          handler: handleAddressWhitelisted
+        - event: CircuitBreakerTriggered(indexed address,string,uint256,uint256)
+          handler: handleCircuitBreakerTriggered
+        - event: CircuitBreakerReset(indexed address,uint256)
+          handler: handleCircuitBreakerReset
+        - event: VolatilityWarning(indexed address,uint256,uint256)
+          handler: handleVolatilityWarning
+        - event: HighPriceImpact(indexed address,indexed address,uint256,uint256)
+          handler: handleHighPriceImpact
+        - event: WhaleIntentRegistered(indexed address,indexed address,uint256,bool,uint256,uint256)
+          handler: handleWhaleIntentRegistered
+        - event: WhaleTradeExecuted(indexed address,indexed address,uint256,bool,uint256)
+          handler: handleWhaleTradeExecuted
+        - event: WhaleIntentCancelled(indexed address,indexed address,uint256)
+          handler: handleWhaleIntentCancelled
+      file: ./src/carbonCoinProtectionMapping.ts
+  - kind: ethereum
+    name: CarbonCoinConfig
+    network: somnia-testnet
+    source:
+      address: "0x7c09971E504c4F68b2C1b080884A487c82EFce43"
+      abi: CarbonCoinConfig
+      startBlock: 307496254
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - ConfigUpdate
+      abis:
+        - name: CarbonCoinConfig
+          file: ./ref/abis/CarbonCoinConfig.json
+      eventHandlers:
+        - event: DefaultConfigUpdated(string,uint256)
+          handler: handleDefaultConfigUpdated
+      file: ./src/carbonCoinConfigMapping.ts
 templates:
   - kind: ethereum
     name: CarbonCoin
@@ -101,51 +166,36 @@ templates:
       language: wasm/assemblyscript
       entities:
         - Token
-        - Creator
         - Transaction
         - User
         - Holder
-        - Approval
-        - WhaleIntent
-        - Bot
+        - EmergencyWithdrawal
       abis:
         - name: CarbonCoin
           file: ./ref/abis/CarbonCoin.json
       eventHandlers:
         - event: Transfer(indexed address,indexed address,uint256)
           handler: handleTransfer
-        - event: Graduated(indexed address,indexed address,uint256,uint256,uint256,uint256)
-          handler: handleGraduated
+        - event: TokenDeployed(indexed address,indexed address,string,string,uint256,uint256,uint256)
+          handler: handleTokenDeployed
         - event: TokensPurchased(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTokensPurchased
         - event: TokensSold(indexed address,uint256,uint256,uint256,uint256,uint256,uint256)
           handler: handleTokensSold
-        - event: Approval(indexed address,indexed address,uint256)
-          handler: handleApproval
-        - event: WhaleIntentRegistered(indexed address,uint256,bool,uint256,uint256)
-          handler: handleWhaleIntentRegistered
-        - event: WhaleIntentCancelled(indexed address,uint256)
-          handler: handleWhaleIntentCancelled
-        - event: WhaleTradeExecuted(indexed address,uint256,bool,uint256)
-          handler: handleWhaleTradeExecuted
-        - event: CircuitBreakerTriggered(string,uint256,uint256)
-          handler: handleCircuitBreakerTriggered
-        - event: CircuitBreakerReset(uint256)
-          handler: handleCircuitBreakerReset
-        - event: AddressBlacklisted(indexed address,bool,uint256)
-          handler: handleAddressBlacklisted
-        - event: BotDetected(indexed address,string,uint256)
-          handler: handleBotDetected
-        - event: AddressWhitelisted(indexed address,bool,uint256)
-          handler: handleAddressWhitelisted
+        - event: Graduated(indexed address,uint256,uint256,uint256,uint256)
+          handler: handleGraduated
         - event: PriceUpdate(uint256,uint256,uint256,uint256)
           handler: handlePriceUpdate
         - event: TradingPaused(uint256)
           handler: handleTradingPaused
         - event: TradingUnpaused(uint256)
           handler: handleTradingUnpaused
-        - event: Paused(address)
-          handler: handlePaused
-        - event: Unpaused(address)
-          handler: handleUnpaused
+        - event: EmergencyWithdraw(indexed address,uint256,uint256)
+          handler: handleEmergencyWithdraw
+        - event: LiquiditySnapshot(uint256,uint256,uint256,uint256)
+          handler: handleLiquiditySnapshot
+        - event: CreatorReserveMinted(indexed address,uint256,uint256)
+          handler: handleCreatorReserveMinted
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
       file: ./src/carbonCoinMapping.ts
