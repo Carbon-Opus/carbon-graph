@@ -3,3 +3,4 @@ build/
 generated/
 .genkit/
 .env
+.DS_Store

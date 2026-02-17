@@ -29,6 +29,8 @@ interface ICarbonCoin {
     uint256 virtualUsdc;
     uint256 virtualTokens;
     uint256 creatorReserve;
+    uint256 liquiditySupply;
+    uint256 curveSupply;
     uint256 maxSupply;
     uint256 graduationThreshold;
   }

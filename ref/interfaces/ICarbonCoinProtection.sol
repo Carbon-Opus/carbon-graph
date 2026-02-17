@@ -56,6 +56,8 @@ interface ICarbonCoinProtection {
     event WhaleIntentRegistered(address indexed token, address indexed trader, uint256 amount, bool isBuy, uint256 executeAfter, uint256 timestamp);
     event WhaleTradeExecuted(address indexed token, address indexed trader, uint256 amount, bool isBuy, uint256 timestamp);
     event WhaleIntentCancelled(address indexed token, address indexed trader, uint256 timestamp);
+    event ConfigUpdated(address indexed newConfig, uint256 timestamp);
+    event LauncherUpdated(address indexed newLauncher, uint256 timestamp);
 
     // Custom errors
     error WhaleDelayActive();
@@ -69,7 +71,7 @@ interface ICarbonCoinProtection {
     /**
      * @notice Initialize protection for a new token
      */
-    function initializeToken(address token, address creator, address launcher) external;
+    function initializeToken(address token, address creator) external;
 
     /**
      * @notice Check if anti-bot protection should be applied

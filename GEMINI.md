@@ -64,62 +64,16 @@ We believe fans should profit from discovering great artists early.
 We believe music should bring people together, not just extract value from them.
 Right now, the music industry makes billions while artists struggle. We're flipping that model on its head.
 
-
-
 # CarbonOpus Contracts
 
-For detailed information about the `CarbonCoinLauncher`, `CarbonCoin`, and `CarbonOpus` smart contracts, including their lifecycle, functions, and events, please refer to:
+For detailed information about the smart contracts, including their lifecycle, functions, and events, please refer to:
 
 [ref/contracts.md](ref/contracts.md)
 
 ### Contract ABIs
 
-The JSON ABI files for the contracts are available in `ref/abis/`:
-
--   [CarbonCoin.json](ref/abis/CarbonCoin.json)
--   [CarbonCoinConfig.json](ref/abis/CarbonCoinConfig.json)
--   [CarbonCoinLauncher.json](ref/abis/CarbonCoinLauncher.json)
--   [CarbonOpus.json](ref/abis/CarbonOpus.json)
--   [ICarbonCoin.json](ref/abis/ICarbonCoin.json)
--   [ICarbonCoinConfig.json](ref/abis/ICarbonCoinConfig.json)
--   [ICarbonCoinLauncher.json](ref/abis/ICarbonCoinLauncher.json)
--   [ICarbonOpus.json](ref/abis/ICarbonOpus.json)
-
-
+The JSON ABI files for the contracts are available in `ref/abis/`
 
 # CarbonOpus Subgraph
 
 This subgraph indexes the CarbonOpus protocol on the Somnia chain, providing a rich and queryable API for all on-chain activities related to the `CarbonCoinLauncher` and `CarbonCoin` smart contracts.
-
-## Key Features
-
--   **Holder Tracking**: Tracks the total number of holders for each token and the balance of each holder.
--   **Creator Allocation**: Automatically allocates 10% of the total supply to the creator at the time of deployment.
--   **Comprehensive Event Tracking**: Captures a wide range of events to provide rich data for a live trading market, including:
-    -   `TokensPurchased` and `TokensSold` for detailed economic data.
-    -   `Approval` for tracking intent to sell.
-    -   `WhaleIntentRegistered`, `WhaleIntentCancelled`, and `WhaleTradeExecuted` for monitoring large trades.
-    -   `CircuitBreakerTriggered` and `CircuitBreakerReset` for tracking trading pauses.
-    -   `AddressBlacklisted` and `BotDetected` for security and user information.
-
-## Schema
-
-The GraphQL schema (`schema.graphql`) defines the following main entities:
-
--   `Token`: Represents a `CarbonCoin` token.
--   `Creator`: Represents the creator of a token.
--   `User`: Represents a user of the protocol.
--   `Holder`: Represents a user's balance of a specific token.
--   `Transaction`: Represents a buy, sell, or transfer transaction.
--   `Approval`: Represents an ERC20 approval.
--   `WhaleIntent`: Represents a pending large trade.
--   `Bot`: Represents a detected bot.
-
-## Getting Started
-
-The `README.md` file in the `carbon-graph` directory contains detailed instructions on how to set up, configure, build, and deploy the subgraph.
-
-Deployed to https://proxy.somnia.chain.love/subgraphs/name/somnia-testnet/carbon-opus-staging/graphql
-
-Subgraph endpoints:
-Queries (HTTP):     https://proxy.somnia.chain.love/subgraphs/name/somnia-testnet/carbon-opus-staging

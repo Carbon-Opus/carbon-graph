@@ -352,6 +352,16 @@
           },
           {
             "internalType": "uint256",
+            "name": "liquiditySupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "curveSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "maxSupply",
             "type": "uint256"
           },

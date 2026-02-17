@@ -50,6 +50,16 @@
           },
           {
             "internalType": "uint256",
+            "name": "liquiditySupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "curveSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "maxSupply",
             "type": "uint256"
           },
@@ -723,6 +733,19 @@
   },
   {
     "inputs": [],
+    "name": "CURVE_SUPPLY",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "DOMAIN_SEPARATOR",
     "outputs": [
       {
@@ -750,6 +773,19 @@
   {
     "inputs": [],
     "name": "GRADUATION_THRESHOLD",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LIQUIDITY_SUPPLY",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1104,6 +1140,19 @@
   {
     "inputs": [],
     "name": "getCurrentPrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getLiquiditySupply",
     "outputs": [
       {
         "internalType": "uint256",
