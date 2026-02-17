@@ -31,6 +31,19 @@ type Token @entity(immutable: false) {
   lastPriceUpdate: BigInt!
   volatilityMoveCount: BigInt!
   emergencyWithdrawals: [EmergencyWithdrawal!]! @derivedFrom(field: "token")
+
+  # DEX Graduation fields
+  "DEX pair entity (null if not graduated)"
+  dexPair: DexPair
+
+  "DEX pair address (for quick queries)"
+  dexPairAddress: Bytes
+
+  "Whether liquidity has been deployed to DEX"
+  liquidityDeployed: Boolean!
+
+  "Transaction hash of liquidity deployment"
+  liquidityDeploymentTx: Bytes
 }
 
 type Creator @entity(immutable: false) {
@@ -224,5 +237,69 @@ type FeeWithdrawal @entity(immutable: true) {
 type ConfigUpdate @entity(immutable: true) {
   id: ID! # transaction hash + log index
   configType: String! # "DefaultConfig"
+  timestamp: BigInt!
+}
+
+type DexPair @entity(immutable: false) {
+  "DEX pair address"
+  id: ID!
+
+  "The token that graduated"
+  token: Token!
+
+  "Creator of the token"
+  creator: Bytes!
+
+  "DEX pair contract address"
+  pairAddress: Bytes!
+
+  "Amount of tokens added to liquidity"
+  tokenAmount: BigInt!
+
+  "Amount of USDC added to liquidity"
+  usdcAmount: BigInt!
+
+  "Amount of LP tokens minted"
+  liquidityTokens: BigInt!
+
+  "Timestamp of deployment"
+  deployedAt: BigInt!
+
+  "Transaction hash"
+  deploymentTx: Bytes!
+}
+
+type Dex @entity(immutable: false) {
+  "Singleton entity (id: '1')"
+  id: ID!
+
+  "Total number of pairs deployed"
+  totalPairs: BigInt!
+
+  "Total USDC value locked in graduated pairs"
+  totalUsdcLocked: BigInt!
+
+  "Total token value locked in graduated pairs"
+  totalTokensLocked: BigInt!
+
+  "Is DEX paused"
+  paused: Boolean!
+
+  "Config address"
+  config: Bytes!
+}
+
+type DexPauseEvent @entity(immutable: true) {
+  id: ID!
+  dex: Dex!
+  paused: Boolean!
+  timestamp: BigInt!
+}
+
+type DexConfigUpdate @entity(immutable: true) {
+  id: ID!
+  dex: Dex!
+  oldConfig: Bytes!
+  newConfig: Bytes!
   timestamp: BigInt!
 }

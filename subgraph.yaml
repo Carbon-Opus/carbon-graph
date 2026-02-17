@@ -6,9 +6,9 @@ dataSources:
     name: CarbonOpus
     network: somnia-testnet
     source:
-      address: "0xC80e30e1EA5A760093c3F408e6fd20ec2C6f3E1d"
+      address: "0xE5afE40ACA5865399Ed0493e9c4FcaDC718926c5"
       abi: CarbonOpus
-      startBlock: 307496383
+      startBlock: 309541293
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -52,9 +52,9 @@ dataSources:
     name: CarbonCoinLauncher
     network: somnia-testnet
     source:
-      address: "0x2FB4737e7F9dd9cB19dDb9820acDFB3974a04128"
+      address: "0x6751Dc6DEF05bBf9069356c9AEE37941A56A4d27"
       abi: CarbonCoinLauncher
-      startBlock: 307496322
+      startBlock: 309541231
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -94,9 +94,9 @@ dataSources:
     name: CarbonCoinProtection
     network: somnia-testnet
     source:
-      address: "0xD25e3be55804700Bd10C663c5Ad8E7bb9A55afBA"
+      address: "0x3F59dAd9FcC50726dF2aF8f366bDa5a1d701e743"
       abi: CarbonCoinProtection
-      startBlock: 307496296
+      startBlock: 309541212
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,9 +138,9 @@ dataSources:
     name: CarbonCoinConfig
     network: somnia-testnet
     source:
-      address: "0x7c09971E504c4F68b2C1b080884A487c82EFce43"
+      address: "0x47D08E4451AD2c3bc20f8CC240c99CE94a756A2B"
       abi: CarbonCoinConfig
-      startBlock: 307496254
+      startBlock: 309541132
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -154,6 +154,36 @@ dataSources:
         - event: DefaultConfigUpdated(string,uint256)
           handler: handleDefaultConfigUpdated
       file: ./src/carbonCoinConfigMapping.ts
+  - kind: ethereum
+    name: CarbonCoinDex
+    network: somnia-testnet
+    source:
+      address: "0x69EAf84fD275429955A4D99977aA745aa22770Df"
+      abi: CarbonCoinDex
+      startBlock: 309541151
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DexPair
+        - Dex
+        - Token
+        - DexPauseEvent
+        - DexConfigUpdate
+      abis:
+        - name: CarbonCoinDex
+          file: ./ref/abis/CarbonCoinDex.json
+      eventHandlers:
+        - event: LiquidityDeployed(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleLiquidityDeployed
+        - event: DexPaused(uint256)
+          handler: handleDexPaused
+        - event: DexUnpaused(uint256)
+          handler: handleDexUnpaused
+        - event: ConfigUpdated(indexed address,uint256)
+          handler: handleConfigUpdated
+      file: ./src/carbonCoinDexMapping.ts
 templates:
   - kind: ethereum
     name: CarbonCoin

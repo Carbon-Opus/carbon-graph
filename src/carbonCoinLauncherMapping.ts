@@ -54,7 +54,7 @@ function getOrCreateUser(address: string): User {
 export function handleTokenCreated(event: TokenCreated): void {
   let creator = getOrCreateCreator(event.params.creator.toHexString());
   let launcher = getOrCreateLauncher();
-  
+
   if (creator.createdAt == BigInt.fromI32(0)) {
     creator.createdAt = event.params.timestamp;
   }
@@ -76,9 +76,14 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.volatilityMoveCount = BigInt.fromI32(0);
   token.totalHolders = BigInt.fromI32(0);
 
+  // Initialize DEX fields
+  token.liquidityDeployed = false;
+  token.dexPairAddress = null;
+  token.liquidityDeploymentTx = null;
+
   // Bind to the CarbonCoin contract to get initial state
   let contract = CarbonCoin.bind(event.params.tokenAddress);
-  
+
   // Get reserves
   let reserves = contract.try_getReserves();
   if (!reserves.reverted) {
@@ -133,7 +138,7 @@ export function handleTokenCreated(event: TokenCreated): void {
     creatorHolder.token = token.id;
     creatorHolder.balance = token.creatorAllocation;
     creatorHolder.save();
-    
+
     token.totalHolders = BigInt.fromI32(1);
     token.save();
   }
@@ -153,7 +158,7 @@ export function handleTokenGraduatedFromLauncher(event: TokenGraduated): void {
 
 export function handleFeesWithdrawn(event: FeesWithdrawn): void {
   let launcher = getOrCreateLauncher();
-  
+
   let withdrawal = new FeeWithdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   withdrawal.launcher = launcher.id;
   withdrawal.to = event.params.to;
@@ -196,7 +201,7 @@ export function handleLauncherControllerUpdated(event: ControllerUpdated): void 
 
 export function handleFeeReceived(event: FeeReceived): void {
   let launcher = getOrCreateLauncher();
-  
+
   let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   receipt.launcher = launcher.id;
   receipt.from = event.params.from;

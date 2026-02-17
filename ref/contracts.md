@@ -4,14 +4,15 @@ This document provides context for interacting with the CarbonOpus smart contrac
 
 ## 1. Overview
 
-The CarbonOpus system is a two-part ecosystem for launching and trading new tokens, often called "memecoins":
+The CarbonOpus system is a two-part ecosystem for launching and trading new tokens (Artist Coins, not Meme Coins, these don't go to Zero quite so easily):
 
 1.  **`CarbonCoinLauncher.sol`**: A factory contract that allows anyone to create their own `CarbonCoin` token for a small fee.
 2.  **`CarbonCoin.sol`**: The token contract itself. Each token operates on a bonding curve for initial price discovery and trading. Once it gains enough traction (liquidity), it "graduates" by migrating its liquidity to a decentralized exchange (DEX).
 3.  **`CarbonOpus.sol`**: An ERC-1155 NFT contract for minting and buying music.
-4.  **`CarbonCoinProtection.sol`**: A contract that provides various protection mechanisms for `CarbonCoin` tokens, including anti-bot, whale limits, and circuit breakers.
-5.  **`CarbonCoinConfig.sol`**: A contract that stores default configurations for new `CarbonCoin` tokens.
-6.  **`PermitAndTransfer.sol`**: A utility contract for performing EIP-2612 permit and transfer operations.
+4.  **`CarbonCoinDex.sol`**: A contract that provides deploying liquidity to a DEX upon graduation.
+5.  **`CarbonCoinProtection.sol`**: A contract that provides various protection mechanisms for `CarbonCoin` tokens, including anti-bot, whale limits, and circuit breakers.
+6.  **`CarbonCoinConfig.sol`**: A contract that stores default configurations for new `CarbonCoin` tokens.
+7.  **`PermitAndTransfer.sol`**: A utility contract for performing EIP-2612 permit and transfer operations.
 
 ---
 
@@ -219,7 +220,28 @@ When the contract's USDC balance (`realUsdcReserves`) reaches the `GRADUATION_TH
 
 ---
 
-## 4. `CarbonOpus` - The Music NFT Marketplace
+## 4. `CarbonCoinDex` - The DEX Liquidity Manager
+
+### Events
+
+Dapps should monitor the following events for DEX activities:
+
+- `LiquidityDeployed(address indexed token, address indexed creator, address indexed pair, uint256 tokenAmount, uint256 usdcAmount, uint256 liquidity, uint256 timestamp)`: Emitted when a token's liquidity is deployed to the DEX.
+  - `token`: The address of the CarbonCoin token that graduated.
+  - `creator`: The address of the token creator.
+  - `pair`: The address of the DEX pair contract created.
+  - `tokenAmount`: The amount of tokens added to the liquidity pool.
+  - `usdcAmount`: The amount of USDC added to the liquidity pool.
+  - `liquidity`: The amount of LP tokens minted.
+  - `timestamp`: The timestamp of deployment.
+
+- `DexPaused(uint256 timestamp)`: Emitted when the DEX is paused.
+- `DexUnpaused(uint256 timestamp)`: Emitted when the DEX is unpaused.
+- `ConfigUpdated(address indexed newConfig, uint256 timestamp)`: Emitted when the config address is updated.
+
+---
+
+## 5. `CarbonOpus` - The Music NFT Marketplace
 
 The `CarbonOpus` contract is an ERC-1155 NFT marketplace designed for artists to sell their music. It uses a USDC token for all payment and reward transactions and a `memberId` system to track artists and their creations independent of their current wallet address.
 
@@ -352,7 +374,7 @@ constructor(string memory uri, address usdcTokenAddress) public;
 
 ---
 
-## 5. `CarbonCoinProtection` - The Protection Mechanism
+## 6. `CarbonCoinProtection` - The Protection Mechanism
 
 This contract provides various protection mechanisms for `CarbonCoin` tokens, including anti-bot, whale limits, and circuit breakers.
 
@@ -428,7 +450,7 @@ Dapps should monitor the following events from `CarbonCoinProtection` for detail
 
 ---
 
-## 6. `CarbonCoinConfig` - The Configuration Store
+## 7. `CarbonCoinConfig` - The Configuration Store
 
 This contract holds the default configuration parameters for new `CarbonCoin` tokens, including fee structures, anti-bot settings, circuit breaker thresholds, and whale trading limits.
 
@@ -451,7 +473,7 @@ Dapps should monitor the following event for updates to the default configuratio
 
 ---
 
-## 7. `PermitAndTransfer` - The Utility Contract
+## 8. `PermitAndTransfer` - The Utility Contract
 
 This is a utility contract designed to facilitate gasless token transfers using EIP-2612 `permit` signatures followed by a `transferFrom` call.
 

@@ -154,6 +154,36 @@ dataSources:
         - event: DefaultConfigUpdated(string,uint256)
           handler: handleDefaultConfigUpdated
       file: ./src/carbonCoinConfigMapping.ts
+  - kind: ethereum
+    name: CarbonCoinDex
+    network: {{network}}
+    source:
+      address: "{{carbonCoinDexAddress}}"
+      abi: CarbonCoinDex
+      startBlock: {{carbonCoinDexStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - DexPair
+        - Dex
+        - Token
+        - DexPauseEvent
+        - DexConfigUpdate
+      abis:
+        - name: CarbonCoinDex
+          file: ./ref/abis/CarbonCoinDex.json
+      eventHandlers:
+        - event: LiquidityDeployed(indexed address,indexed address,indexed address,uint256,uint256,uint256,uint256)
+          handler: handleLiquidityDeployed
+        - event: DexPaused(uint256)
+          handler: handleDexPaused
+        - event: DexUnpaused(uint256)
+          handler: handleDexUnpaused
+        - event: ConfigUpdated(indexed address,uint256)
+          handler: handleConfigUpdated
+      file: ./src/carbonCoinDexMapping.ts
 templates:
   - kind: ethereum
     name: CarbonCoin
