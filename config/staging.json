@@ -1,13 +1,13 @@
 {
   "network": "somnia-testnet",
-  "carbonOpusAddress": "0xAE5EDb64d9799B81BAB8D80994879Aaa876f297D",
-  "carbonOpusStartBlock": 310225280,
-  "carbonCoinDexAddress": "0x96905Aa6671c108b226f963e640545A9F41F3603",
-  "carbonCoinDexStartBlock": 310225184,
-  "carbonCoinConfigAddress": "0xdB03C48611C194a78361A6f56d145d014B5Bb213",
-  "carbonCoinConfigStartBlock": 310225167,
-  "carbonCoinProtectionAddress": "0x99b1026bb4262d129bB3F836A5289c034CF90b8f",
-  "carbonCoinProtectionStartBlock": 310225202,
-  "carbonCoinLauncherAddress": "0x719bce16560F9314dB801eaB70A563eab9c15633",
-  "carbonCoinLauncherStartBlock": 310225263
+  "carbonOpusAddress": "0x6c59dF12b1F4cB61F5077d810E22768Bc7a20109",
+  "carbonOpusStartBlock": 310395541,
+  "carbonCoinDexAddress": "0x5fb648d7797274398309b82526e41C1D2A273Ddd",
+  "carbonCoinDexStartBlock": 310395445,
+  "carbonCoinConfigAddress": "0x564eD4721656bEFE62AaBDEF71b56748f065bAdB",
+  "carbonCoinConfigStartBlock": 310395428,
+  "carbonCoinProtectionAddress": "0xEb0103568d4D53733d23C80F91a49C92Ebd89696",
+  "carbonCoinProtectionStartBlock": 310395467,
+  "carbonCoinLauncherAddress": "0x973a5D67E80Ef5Faa5faA0EddA7D31C8D189782E",
+  "carbonCoinLauncherStartBlock": 310395523
 }
