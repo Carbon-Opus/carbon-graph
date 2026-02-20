@@ -73,10 +73,16 @@ dataSources:
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,uint256)
           handler: handleTokenCreated
+        - event: TokenBuy(indexed address,address,uint256,uint256,uint256)
+          handler: handleTokenBuy
+        - event: TokenSell(indexed address,address,uint256,uint256,uint256)
+          handler: handleTokenSell
         - event: TokenGraduated(indexed address,uint256)
           handler: handleTokenGraduatedFromLauncher
-        - event: FeesWithdrawn(indexed address,uint256,uint256)
-          handler: handleFeesWithdrawn
+        - event: UsdcFeesWithdrawn(indexed address,uint256,uint256)
+          handler: handleUsdcFeesWithdrawn
+        - event: NativeFeesWithdrawn(indexed address,uint256,uint256)
+          handler: handleNativeFeesWithdrawn
         - event: LauncherPaused(uint256)
           handler: handleLauncherPaused
         - event: LauncherUnpaused(uint256)
@@ -87,8 +93,8 @@ dataSources:
           handler: handleLauncherOwnershipTransferred
         - event: ControllerUpdated(indexed address)
           handler: handleLauncherControllerUpdated
-        - event: FeeReceived(indexed address,uint256,uint256)
-          handler: handleFeeReceived
+        - event: NativeFeeReceived(indexed address,uint256,uint256)
+          handler: handleNativeFeeReceived
       file: ./src/carbonCoinLauncherMapping.ts
   - kind: ethereum
     name: CarbonCoinProtection

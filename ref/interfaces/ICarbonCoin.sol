@@ -111,6 +111,23 @@ interface ICarbonCoin {
   function getCurrentPrice() external view returns (uint256);
 
   /**
+   * @notice Get the liquidity supply for the bonding curve.
+   * @dev This determines how much of the total supply is allocated to liquidity vs creator reserve.
+   * @return _maxTradeSize
+   * @return _maxSellPercentage
+   * @return _whaleThreshold
+   * @return _whaleDelay
+   * @return currentMaxSellTokens
+   */
+  function getTradeLimits() external view returns (
+    uint256 _maxTradeSize,
+    uint256 _maxSellPercentage,
+    uint256 _whaleThreshold,
+    uint256 _whaleDelay,
+    uint256 currentMaxSellTokens
+  );
+
+  /**
    * @notice Calculate the amount of tokens received for a given USDC input.
    * @dev The calculation is based on the bonding curve formula and includes the buy fee.
    * @param usdcIn The amount of USDC to be spent.
@@ -133,6 +150,15 @@ interface ICarbonCoin {
    * @return The amount of USDC that will be received.
    */
   function calculateUsdcOut(uint256 tokensIn) external view returns (uint256);
+
+  /**
+   * @notice Calculate the amount of USDC received when selling a specific amount of tokens.
+   * @dev The calculation is based on the bonding curve formula and includes the sell fee.
+   * @param tokensIn The amount of tokens to be sold.
+   * @return The amount of USDC that will be received.
+   * @return The amount of fee that will be taken.
+   */
+  function calculateUsdcOutWithFee(uint256 tokensIn) external view returns (uint256, uint256);
 
   /**
    * @notice Allows a user to buy tokens with USDC using permit (gasless signature).

@@ -50,7 +50,7 @@ type Creator @entity(immutable: false) {
   id: ID! # creator address
   tokens: [Token!]! @derivedFrom(field: "creator")
   createdAt: BigInt!
-  totalFeesCollected: BigInt!
+  # totalFeesCollected: BigInt!
 }
 
 type User @entity(immutable: false) {
@@ -212,7 +212,8 @@ type Launcher @entity(immutable: false) {
   controller: Bytes!
   maxTokensPerCreator: BigInt!
   paused: Boolean!
-  totalFeesCollected: BigInt!
+  totalUsdcFeesCollected: BigInt!
+  totalNativeFeesCollected: BigInt!
   totalTokensCreated: BigInt!
   feeReceipts: [FeeReceipt!]! @derivedFrom(field: "launcher")
   feeWithdrawals: [FeeWithdrawal!]! @derivedFrom(field: "launcher")
@@ -221,6 +222,7 @@ type Launcher @entity(immutable: false) {
 type FeeReceipt @entity(immutable: true) {
   id: ID! # transaction hash + log index
   launcher: Launcher!
+  type: String! # "usdc" or "native"
   from: Bytes!
   amount: BigInt!
   timestamp: BigInt!
@@ -229,6 +231,7 @@ type FeeReceipt @entity(immutable: true) {
 type FeeWithdrawal @entity(immutable: true) {
   id: ID! # transaction hash + log index
   launcher: Launcher!
+  type: String! # "usdc" or "native"
   to: Bytes!
   amount: BigInt!
   timestamp: BigInt!

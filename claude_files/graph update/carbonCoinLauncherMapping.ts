@@ -1,14 +1,17 @@
 import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   TokenCreated,
+  TokenBuy,
+  TokenSell,
   TokenGraduated,
-  FeesWithdrawn,
+  UsdcFeesWithdrawn,
+  NativeFeesWithdrawn,
   LauncherPaused,
   LauncherUnpaused,
   MaxTokensPerCreatorUpdated,
   OwnershipTransferred,
   ControllerUpdated,
-  FeeReceived,
+  NativeFeeReceived,
 } from "../generated/CarbonCoinLauncher/CarbonCoinLauncher";
 import { CarbonCoin } from "../generated/CarbonCoinLauncher/CarbonCoin";
 import { Token, Creator, Launcher, FeeReceipt, FeeWithdrawal, User, Holder } from "../generated/schema";
@@ -24,7 +27,8 @@ function getOrCreateLauncher(): Launcher {
     launcher.controller = Address.fromString(ZERO_ADDRESS);
     launcher.maxTokensPerCreator = BigInt.fromI32(0);
     launcher.paused = false;
-    launcher.totalFeesCollected = BigInt.fromI32(0);
+    launcher.totalUsdcFeesCollected = BigInt.fromI32(0);
+    launcher.totalNativeFeesCollected = BigInt.fromI32(0);
     launcher.totalTokensCreated = BigInt.fromI32(0);
     launcher.save();
   }
@@ -36,7 +40,7 @@ function getOrCreateCreator(address: string): Creator {
   if (creator == null) {
     creator = new Creator(address);
     creator.createdAt = BigInt.fromI32(0);
-    creator.totalFeesCollected = BigInt.fromI32(0);
+    // creator.totalFeesCollected = BigInt.fromI32(0);
     creator.save();
   }
   return creator;
@@ -54,7 +58,7 @@ function getOrCreateUser(address: string): User {
 export function handleTokenCreated(event: TokenCreated): void {
   let creator = getOrCreateCreator(event.params.creator.toHexString());
   let launcher = getOrCreateLauncher();
-  
+
   if (creator.createdAt == BigInt.fromI32(0)) {
     creator.createdAt = event.params.timestamp;
   }
@@ -78,7 +82,7 @@ export function handleTokenCreated(event: TokenCreated): void {
 
   // Bind to the CarbonCoin contract to get initial state
   let contract = CarbonCoin.bind(event.params.tokenAddress);
-  
+
   // Get reserves
   let reserves = contract.try_getReserves();
   if (!reserves.reverted) {
@@ -133,7 +137,7 @@ export function handleTokenCreated(event: TokenCreated): void {
     creatorHolder.token = token.id;
     creatorHolder.balance = token.creatorAllocation;
     creatorHolder.save();
-    
+
     token.totalHolders = BigInt.fromI32(1);
     token.save();
   }
@@ -151,16 +155,61 @@ export function handleTokenGraduatedFromLauncher(event: TokenGraduated): void {
   }
 }
 
-export function handleFeesWithdrawn(event: FeesWithdrawn): void {
+export function handleTokenBuy(event: TokenBuy): void {
   let launcher = getOrCreateLauncher();
-  
+
+  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  receipt.launcher = launcher.id;
+  receipt.from = event.params.buyer;
+  receipt.amount = event.params.fee;
+  receipt.timestamp = event.block.timestamp;
+  receipt.save();
+
+  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
+  launcher.save();
+}
+
+export function handleTokenSell(event: TokenSell): void {
+  let launcher = getOrCreateLauncher();
+
+  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  receipt.launcher = launcher.id;
+  receipt.from = event.params.seller;
+  receipt.amount = event.params.fee;
+  receipt.timestamp = event.block.timestamp;
+  receipt.save();
+
+  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
+  launcher.save();
+}
+
+export function handleUsdcFeesWithdrawn(event: UsdcFeesWithdrawn): void {
+  let launcher = getOrCreateLauncher();
+
   let withdrawal = new FeeWithdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   withdrawal.launcher = launcher.id;
+  withdrawal.type = "usdc";
   withdrawal.to = event.params.to;
   withdrawal.amount = event.params.amount;
   withdrawal.timestamp = event.params.timestamp;
   withdrawal.save();
 
+  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.minus(event.params.amount);
+  launcher.save();
+}
+
+export function handleNativeFeesWithdrawn(event: NativeFeesWithdrawn): void {
+  let launcher = getOrCreateLauncher();
+
+  let withdrawal = new FeeWithdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  withdrawal.launcher = launcher.id;
+  withdrawal.type = "native";
+  withdrawal.to = event.params.to;
+  withdrawal.amount = event.params.amount;
+  withdrawal.timestamp = event.params.timestamp;
+  withdrawal.save();
+
+  launcher.totalNativeFeesCollected = launcher.totalNativeFeesCollected.minus(event.params.amount);
   launcher.save();
 }
 
@@ -194,9 +243,9 @@ export function handleLauncherControllerUpdated(event: ControllerUpdated): void 
   launcher.save();
 }
 
-export function handleFeeReceived(event: FeeReceived): void {
+export function handleNativeFeeReceived(event: NativeFeeReceived): void {
   let launcher = getOrCreateLauncher();
-  
+
   let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   receipt.launcher = launcher.id;
   receipt.from = event.params.from;
@@ -204,6 +253,6 @@ export function handleFeeReceived(event: FeeReceived): void {
   receipt.timestamp = event.params.timestamp;
   receipt.save();
 
-  launcher.totalFeesCollected = launcher.totalFeesCollected.plus(event.params.amount);
+  launcher.totalNativeFeesCollected = launcher.totalNativeFeesCollected.plus(event.params.amount);
   launcher.save();
 }

@@ -6,9 +6,9 @@ dataSources:
     name: CarbonOpus
     network: somnia-testnet
     source:
-      address: "0x43055E77Ac717D2D09Dd1ABFE9317045b64A18bb"
+      address: "0x92E6AD7DC5307bF476e55d2690C7acD530b77D39"
       abi: CarbonOpus
-      startBlock: 312117260
+      startBlock: 312163702
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -52,9 +52,9 @@ dataSources:
     name: CarbonCoinLauncher
     network: somnia-testnet
     source:
-      address: "0xAB91012b8F76BC2dd74287085Ba37a76cFCE40e4"
+      address: "0x603578F4518E1cB8A0E2611590a96bB317737DAc"
       abi: CarbonCoinLauncher
-      startBlock: 312117140
+      startBlock: 312163583
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -73,10 +73,16 @@ dataSources:
       eventHandlers:
         - event: TokenCreated(indexed address,indexed address,string,string,uint256)
           handler: handleTokenCreated
+        - event: TokenBuy(indexed address,address,uint256,uint256,uint256)
+          handler: handleTokenBuy
+        - event: TokenSell(indexed address,address,uint256,uint256,uint256)
+          handler: handleTokenSell
         - event: TokenGraduated(indexed address,uint256)
           handler: handleTokenGraduatedFromLauncher
-        - event: FeesWithdrawn(indexed address,uint256,uint256)
-          handler: handleFeesWithdrawn
+        - event: UsdcFeesWithdrawn(indexed address,uint256,uint256)
+          handler: handleUsdcFeesWithdrawn
+        - event: NativeFeesWithdrawn(indexed address,uint256,uint256)
+          handler: handleNativeFeesWithdrawn
         - event: LauncherPaused(uint256)
           handler: handleLauncherPaused
         - event: LauncherUnpaused(uint256)
@@ -87,16 +93,16 @@ dataSources:
           handler: handleLauncherOwnershipTransferred
         - event: ControllerUpdated(indexed address)
           handler: handleLauncherControllerUpdated
-        - event: FeeReceived(indexed address,uint256,uint256)
-          handler: handleFeeReceived
+        - event: NativeFeeReceived(indexed address,uint256,uint256)
+          handler: handleNativeFeeReceived
       file: ./src/carbonCoinLauncherMapping.ts
   - kind: ethereum
     name: CarbonCoinProtection
     network: somnia-testnet
     source:
-      address: "0xB8ddC21A89240833377651Eb911b21B8044d2fB8"
+      address: "0x1e220CcC63B9cC827eaf234da2c09a3E913B17F8"
       abi: CarbonCoinProtection
-      startBlock: 312117074
+      startBlock: 312163514
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,9 +144,9 @@ dataSources:
     name: CarbonCoinConfig
     network: somnia-testnet
     source:
-      address: "0x80d807518F007DeCCEFF03767fd350D2936e48Bb"
+      address: "0x9d8b5D683FCdac5CFCd4721950f6F59841B59bA4"
       abi: CarbonCoinConfig
-      startBlock: 312116945
+      startBlock: 312163380
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -158,9 +164,9 @@ dataSources:
     name: CarbonCoinDex
     network: somnia-testnet
     source:
-      address: "0x19A17d4702a37F32aff295aA4196794818B1A942"
+      address: "0x34A01B1F5db5FEA93fcBFfd88E8fE15A22b82Dd8"
       abi: CarbonCoinDex
-      startBlock: 312117013
+      startBlock: 312163449
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

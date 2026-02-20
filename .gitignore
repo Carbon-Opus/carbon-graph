@@ -4,3 +4,4 @@ generated/
 .genkit/
 .env
 .DS_Store
+firebase-debug.log
