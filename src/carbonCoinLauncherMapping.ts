@@ -156,6 +156,7 @@ export function handleTokenBuy(event: TokenBuy): void {
 
   let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   receipt.launcher = launcher.id;
+  receipt.type = "usdc";
   receipt.from = event.params.buyer;
   receipt.amount = event.params.fee;
   receipt.timestamp = event.block.timestamp;
@@ -170,6 +171,7 @@ export function handleTokenSell(event: TokenSell): void {
 
   let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   receipt.launcher = launcher.id;
+  receipt.type = "usdc";
   receipt.from = event.params.seller;
   receipt.amount = event.params.fee;
   receipt.timestamp = event.block.timestamp;
@@ -187,6 +189,22 @@ export function handleTokenGraduatedFromLauncher(event: TokenGraduated): void {
     token.save();
   }
 }
+
+export function handleNativeFeeReceived(event: NativeFeeReceived): void {
+  let launcher = getOrCreateLauncher();
+
+  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
+  receipt.launcher = launcher.id;
+  receipt.type = "native";
+  receipt.from = event.params.from;
+  receipt.amount = event.params.amount;
+  receipt.timestamp = event.params.timestamp;
+  receipt.save();
+
+  launcher.totalNativeFeesCollected = launcher.totalNativeFeesCollected.plus(event.params.amount);
+  launcher.save();
+}
+
 
 export function handleUsdcFeesWithdrawn(event: UsdcFeesWithdrawn): void {
   let launcher = getOrCreateLauncher();
@@ -245,19 +263,5 @@ export function handleLauncherOwnershipTransferred(event: OwnershipTransferred):
 export function handleLauncherControllerUpdated(event: ControllerUpdated): void {
   let launcher = getOrCreateLauncher();
   launcher.controller = event.params.newController;
-  launcher.save();
-}
-
-export function handleNativeFeeReceived(event: NativeFeeReceived): void {
-  let launcher = getOrCreateLauncher();
-
-  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
-  receipt.launcher = launcher.id;
-  receipt.from = event.params.from;
-  receipt.amount = event.params.amount;
-  receipt.timestamp = event.params.timestamp;
-  receipt.save();
-
-  launcher.totalNativeFeesCollected = launcher.totalNativeFeesCollected.plus(event.params.amount);
   launcher.save();
 }

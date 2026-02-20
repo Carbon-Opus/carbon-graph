@@ -87,7 +87,7 @@ export function handleTokenDeployed(event: TokenDeployed): void {
   // The token entity should already exist from handleTokenCreated
   let token = Token.load(event.params.token.toHexString());
   if (token != null) {
-    // Update any fields that might not have been set
+    // Update any fields that might not have been set from Launcher Mapping
     token.maxSupply = event.params.maxSupply;
     token.graduationThreshold = event.params.graduationThreshold;
     token.save();
