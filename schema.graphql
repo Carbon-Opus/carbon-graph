@@ -16,6 +16,8 @@ type Token @entity(immutable: false) {
   realUsdcReserves: BigInt!
   realTokenSupply: BigInt!
   price: BigInt!
+  volume24h: BigInt!
+  volumeUpdatedAt: BigInt!
   totalHolders: BigInt!
   holders: [Holder!]! @derivedFrom(field: "token")
   transactions: [Transaction!]! @derivedFrom(field: "token")
@@ -33,17 +35,25 @@ type Token @entity(immutable: false) {
   emergencyWithdrawals: [EmergencyWithdrawal!]! @derivedFrom(field: "token")
 
   # DEX Graduation fields
-  "DEX pair entity (null if not graduated)"
-  dexPair: DexPair
+  # "DEX pair entity (null if not graduated)"
+  # dexPair: DexPair
+  # lpTokenId: BigInt!
 
-  "DEX pair address (for quick queries)"
-  dexPairAddress: Bytes
+  # "DEX pair address (for quick queries)"
+  # dexPairAddress: Bytes
 
-  "Whether liquidity has been deployed to DEX"
-  liquidityDeployed: Boolean!
+  # "Whether liquidity has been deployed to DEX"
+  # liquidityDeployed: Boolean!
 
-  "Transaction hash of liquidity deployment"
-  liquidityDeploymentTx: Bytes
+  # "Transaction hash of liquidity deployment"
+  # liquidityDeploymentTx: Bytes
+}
+
+type DailyVolume @entity(immutable: false) {
+  id: ID!          # "{tokenAddress}-{dayId}"  where dayId = timestamp / 86400
+  token: Token!
+  dayId: BigInt!
+  volume: BigInt!
 }
 
 type Creator @entity(immutable: false) {
@@ -144,6 +154,7 @@ type ProtectionEvent @entity(immutable: true) {
 type EmergencyWithdrawal @entity(immutable: true) {
   id: ID! # transaction hash + log index
   token: Token!
+  sender: Bytes!
   to: Bytes!
   amount: BigInt!
   timestamp: BigInt!

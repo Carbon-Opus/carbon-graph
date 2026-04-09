@@ -23,6 +23,11 @@
       },
       {
         "internalType": "address",
+        "name": "_paymaster",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_config",
         "type": "address"
       },
@@ -376,6 +381,12 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "to",
         "type": "address"
       },
@@ -474,6 +485,19 @@
       }
     ],
     "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newPaymaster",
+        "type": "address"
+      }
+    ],
+    "name": "PaymasterUpdated",
     "type": "event"
   },
   {
@@ -936,6 +960,29 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "usdcAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minTokensOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "buyOnBehalf",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "usdcAmount",
         "type": "uint256"
@@ -1150,33 +1197,7 @@
   },
   {
     "inputs": [],
-    "name": "getBondingCurveMaxSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getCurrentPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getLiquiditySupply",
     "outputs": [
       {
         "internalType": "uint256",
@@ -1209,19 +1230,6 @@
       {
         "internalType": "uint256",
         "name": "virtualTokens",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getTotalMaxSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
         "type": "uint256"
       }
     ],
@@ -1366,6 +1374,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "paymaster",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -1461,6 +1482,29 @@
       }
     ],
     "name": "sell",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokensIn",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minUsdcOut",
+        "type": "uint256"
+      }
+    ],
+    "name": "sellOnBehalf",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

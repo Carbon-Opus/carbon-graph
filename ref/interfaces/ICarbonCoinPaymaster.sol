@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-// ICarbonCoinDex.sol
+// ICarbonCoinPaymaster.sol
 // Copyright (c) 2025 CarbonOpus
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,26 +24,28 @@
 
 pragma solidity 0.8.27;
 
-interface ICarbonCoinDex {
-    event LiquidityDeployed(
-        address indexed token,
-        address indexed creator,
-        uint256 indexed lpTokenId,
-        uint256 tokenAmount,
-        uint256 usdcAmount,
-        uint256 liquidity,
-        uint256 timestamp
-    );
-    event LiquidityRemoved(address indexed token, address indexed to, uint256 amountA, uint256 amountB, uint256 timestamp);
-    event TokensSwapped(address indexed token, address indexed to, uint256 amountIn, uint256 amountOut, address[] path, uint256 timestamp);
-    event DexPaused(uint256 timestamp);
-    event DexUnpaused(uint256 timestamp);
-    event ConfigUpdated(address indexed newConfig, uint256 timestamp);
-    event RouterUpdated(address indexed newRouter, uint256 timestamp);
+interface ICarbonCoinPaymaster {
+  event TokenBuy(address indexed coinAddress, address buyer, uint256 usdcAmount, uint256 minTokensOut);
+  event TokenSell(address indexed coinAddress, address seller, uint256 tokensAmount, uint256 minUsdcOut);
+  event ControllerUpdated(address indexed newController);
 
-    error Unauthorized();
+  error Unauthorized();
 
-    function deployLiquidity(address creator, address token, uint256 tokensAmount, uint256 usdcAmount)
-      external
-      returns (uint256 amountA, uint256 amountB, uint256 liquidity, uint256 lpTokenId);
+  function buyOnBehalf(
+    address receiver,
+    address creatorCoin,
+    uint256 usdcAmount,
+    uint256 minTokensOut,
+    uint256 deadline,
+    uint8 v,
+    bytes32 r,
+    bytes32 s
+  ) external;
+
+  function sellOnBehalf(
+    address receiver,
+    address creatorCoin,
+    uint256 amount,
+    uint256 minUsdcOut
+  ) external;
 }

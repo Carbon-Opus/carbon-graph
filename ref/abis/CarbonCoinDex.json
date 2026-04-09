@@ -15,6 +15,16 @@
         "internalType": "address",
         "name": "_config",
         "type": "address"
+      },
+      {
+        "internalType": "int24",
+        "name": "_tickLower",
+        "type": "int24"
+      },
+      {
+        "internalType": "int24",
+        "name": "_tickUpper",
+        "type": "int24"
       }
     ],
     "stateMutability": "nonpayable",
@@ -124,9 +134,9 @@
       },
       {
         "indexed": true,
-        "internalType": "address",
-        "name": "pair",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "lpTokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -154,6 +164,43 @@
       }
     ],
     "name": "LiquidityDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountA",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountB",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "LiquidityRemoved",
     "type": "event"
   },
   {
@@ -205,6 +252,49 @@
       }
     ],
     "name": "RouterUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountIn",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amountOut",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "path",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "TokensSwapped",
     "type": "event"
   },
   {
@@ -273,17 +363,22 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "amountA",
+        "name": "amount0",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "amountB",
+        "name": "amount1",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
         "name": "liquidity",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lpTokenId",
         "type": "uint256"
       }
     ],
@@ -295,7 +390,7 @@
     "name": "dexRouter",
     "outputs": [
       {
-        "internalType": "contract ISomniaExchangeRouter02",
+        "internalType": "contract INonfungiblePositionManager",
         "name": "",
         "type": "address"
       }

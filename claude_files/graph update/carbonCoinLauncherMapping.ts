@@ -1,8 +1,6 @@
 import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   TokenCreated,
-  TokenBuy,
-  TokenSell,
   TokenGraduated,
   UsdcFeesWithdrawn,
   NativeFeesWithdrawn,
@@ -153,34 +151,6 @@ export function handleTokenGraduatedFromLauncher(event: TokenGraduated): void {
     token.graduatedAt = event.params.timestamp;
     token.save();
   }
-}
-
-export function handleTokenBuy(event: TokenBuy): void {
-  let launcher = getOrCreateLauncher();
-
-  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
-  receipt.launcher = launcher.id;
-  receipt.from = event.params.buyer;
-  receipt.amount = event.params.fee;
-  receipt.timestamp = event.block.timestamp;
-  receipt.save();
-
-  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
-  launcher.save();
-}
-
-export function handleTokenSell(event: TokenSell): void {
-  let launcher = getOrCreateLauncher();
-
-  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
-  receipt.launcher = launcher.id;
-  receipt.from = event.params.seller;
-  receipt.amount = event.params.fee;
-  receipt.timestamp = event.block.timestamp;
-  receipt.save();
-
-  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
-  launcher.save();
 }
 
 export function handleUsdcFeesWithdrawn(event: UsdcFeesWithdrawn): void {

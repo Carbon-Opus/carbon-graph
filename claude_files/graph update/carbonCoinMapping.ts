@@ -197,6 +197,7 @@ export function handleEmergencyWithdraw(event: EmergencyWithdraw): void {
 
   let withdrawal = new EmergencyWithdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   withdrawal.token = token.id;
+  withdrawal.sender = event.params.sender;
   withdrawal.to = event.params.to;
   withdrawal.amount = event.params.amount;
   withdrawal.timestamp = event.params.timestamp;

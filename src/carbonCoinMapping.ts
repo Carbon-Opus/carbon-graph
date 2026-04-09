@@ -14,7 +14,7 @@ import {
   Approval,
 } from "../generated/templates/CarbonCoin/CarbonCoin";
 import { CarbonCoin } from "../generated/templates/CarbonCoin/CarbonCoin";
-import { Token, Transaction, User, Holder, EmergencyWithdrawal, Approval as ApprovalEntity } from "../generated/schema";
+import { Token, DailyVolume, Transaction, User, Holder, EmergencyWithdrawal, Approval as ApprovalEntity } from "../generated/schema";
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -25,6 +25,37 @@ function getOrCreateUser(address: string): User {
     user.save();
   }
   return user;
+}
+
+// Helper to get or create a DailyVolume bucket
+function getOrCreateDailyVolume(tokenId: string, timestamp: BigInt): DailyVolume {
+  let dayId = timestamp.div(BigInt.fromI32(86400));
+  let id = tokenId + "-" + dayId.toString();
+
+  let daily = DailyVolume.load(id);
+  if (daily == null) {
+    daily = new DailyVolume(id);
+    daily.token = tokenId;
+    daily.dayId = dayId;
+    daily.volume = BigInt.fromI32(0);
+  }
+  return daily as DailyVolume;
+}
+
+// Helper to compute 24h volume by summing today + yesterday's bucket
+function compute24hVolume(tokenId: string, timestamp: BigInt): BigInt {
+  let dayId = timestamp.div(BigInt.fromI32(86400));
+
+  let todayId = tokenId + "-" + dayId.toString();
+  let yesterdayId = tokenId + "-" + dayId.minus(BigInt.fromI32(1)).toString();
+
+  let today = DailyVolume.load(todayId);
+  let yesterday = DailyVolume.load(yesterdayId);
+
+  let total = BigInt.fromI32(0);
+  if (today != null) total = total.plus(today.volume);
+  if (yesterday != null) total = total.plus(yesterday.volume);
+  return total;
 }
 
 export function handleTransfer(event: Transfer): void {
@@ -114,9 +145,16 @@ export function handleTokensPurchased(event: TokensPurchased): void {
   transaction.timestamp = event.params.timestamp;
   transaction.save();
 
+  // --- 24h Volume tracking ---
+  let daily = getOrCreateDailyVolume(token.id, event.params.timestamp);
+  daily.volume = daily.volume.plus(event.params.usdcAmount);
+  daily.save();
+
   token.realUsdcReserves = event.params.realUsdcReserves;
   token.realTokenSupply = event.params.realTokenSupply;
   token.price = event.params.newPrice;
+  token.volume24h = compute24hVolume(token.id, event.params.timestamp);
+  token.volumeUpdatedAt = event.params.timestamp;
   token.save();
 }
 
@@ -140,9 +178,16 @@ export function handleTokensSold(event: TokensSold): void {
   transaction.timestamp = event.params.timestamp;
   transaction.save();
 
+  // --- 24h Volume tracking ---
+  let daily = getOrCreateDailyVolume(token.id, event.params.timestamp);
+  daily.volume = daily.volume.plus(event.params.usdcOut);
+  daily.save();
+
   token.realUsdcReserves = event.params.realUsdcReserves;
   token.realTokenSupply = event.params.realTokenSupply;
   token.price = event.params.newPrice;
+  token.volume24h = compute24hVolume(token.id, event.params.timestamp);
+  token.volumeUpdatedAt = event.params.timestamp;
   token.save();
 }
 
@@ -197,6 +242,7 @@ export function handleEmergencyWithdraw(event: EmergencyWithdraw): void {
 
   let withdrawal = new EmergencyWithdrawal(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
   withdrawal.token = token.id;
+  withdrawal.sender = event.params.sender;
   withdrawal.to = event.params.to;
   withdrawal.amount = event.params.amount;
   withdrawal.timestamp = event.params.timestamp;

@@ -74,9 +74,10 @@ interface ICarbonCoin {
   );
 
   // Admin events
-  event EmergencyWithdraw(address indexed to, uint256 amount, uint256 timestamp);
+  event EmergencyWithdraw(address indexed sender, address indexed to, uint256 amount, uint256 timestamp);
   event TradingPaused(uint256 timestamp);
   event TradingUnpaused(uint256 timestamp);
+  event PaymasterUpdated(address indexed newPaymaster);
 
   // State tracking events
   event PriceUpdate(uint256 price, uint256 usdcReserves, uint256 tokenSupply, uint256 timestamp);
@@ -93,15 +94,6 @@ interface ICarbonCoin {
   error GraduationCooldownActive();
   error WhaleIntentRequired();
   error CreatorCannotSellBeforeGraduation();
-
-  /**
-   * @notice Get total supply including creator reserve
-   */
-  function getTotalMaxSupply() external view returns (uint256);
-  /**
-   * @notice Get bonding curve supply (excludes creator reserve)
-   */
-  function getBondingCurveMaxSupply() external view returns (uint256);
 
   /**
    * @notice Get the current token price in USDC.
@@ -188,6 +180,12 @@ interface ICarbonCoin {
    */
   function buy(uint256 usdcAmount, uint256 minTokensOut) external;
 
+  function buyOnBehalf(
+    address receiver,
+    uint256 usdcAmount,
+    uint256 minTokensOut
+  ) external;
+
   /**
    * @notice Allows a user to sell tokens for USDC.
    * @dev This function is the main entry point for selling tokens.
@@ -195,6 +193,12 @@ interface ICarbonCoin {
    * @param minUsdcOut The minimum amount of USDC the user is willing to accept.
    */
   function sell(uint256 tokensIn, uint256 minUsdcOut) external;
+
+  function sellOnBehalf(
+    address receiver,
+    uint256 tokensIn,
+    uint256 minUsdcOut
+  ) external;
 
   function getReserves() external view returns (
     uint256 usdcReserves,

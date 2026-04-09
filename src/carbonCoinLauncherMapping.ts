@@ -1,8 +1,6 @@
 import { BigInt, Address, log } from "@graphprotocol/graph-ts";
 import {
   TokenCreated,
-  TokenBuy,
-  TokenSell,
   TokenGraduated,
   UsdcFeesWithdrawn,
   NativeFeesWithdrawn,
@@ -79,11 +77,13 @@ export function handleTokenCreated(event: TokenCreated): void {
   token.lastPriceUpdate = BigInt.fromI32(0);
   token.volatilityMoveCount = BigInt.fromI32(0);
   token.totalHolders = BigInt.fromI32(0);
+  token.volume24h = BigInt.fromI32(0);
+  token.volumeUpdatedAt = event.params.timestamp;
 
   // Initialize DEX fields
-  token.liquidityDeployed = false;
-  token.dexPairAddress = null;
-  token.liquidityDeploymentTx = null;
+  // token.liquidityDeployed = false;
+  // token.dexPairAddress = null;
+  // token.liquidityDeploymentTx = null;
 
   // Bind to the CarbonCoin contract to get initial state
   let contract = CarbonCoin.bind(event.params.tokenAddress);
@@ -149,36 +149,6 @@ export function handleTokenCreated(event: TokenCreated): void {
 
   // Start indexing the new token
   CarbonCoinTemplate.create(event.params.tokenAddress);
-}
-
-export function handleTokenBuy(event: TokenBuy): void {
-  let launcher = getOrCreateLauncher();
-
-  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
-  receipt.launcher = launcher.id;
-  receipt.type = "usdc";
-  receipt.from = event.params.buyer;
-  receipt.amount = event.params.fee;
-  receipt.timestamp = event.block.timestamp;
-  receipt.save();
-
-  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
-  launcher.save();
-}
-
-export function handleTokenSell(event: TokenSell): void {
-  let launcher = getOrCreateLauncher();
-
-  let receipt = new FeeReceipt(event.transaction.hash.toHexString() + "-" + event.logIndex.toString());
-  receipt.launcher = launcher.id;
-  receipt.type = "usdc";
-  receipt.from = event.params.seller;
-  receipt.amount = event.params.fee;
-  receipt.timestamp = event.block.timestamp;
-  receipt.save();
-
-  launcher.totalUsdcFeesCollected = launcher.totalUsdcFeesCollected.plus(event.params.fee);
-  launcher.save();
 }
 
 export function handleTokenGraduatedFromLauncher(event: TokenGraduated): void {

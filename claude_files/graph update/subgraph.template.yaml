@@ -27,7 +27,7 @@ dataSources:
       eventHandlers:
         - event: SongCreated(indexed uint256,indexed bytes32,uint256,uint256)
           handler: handleSongCreated
-        - event: SongPurchased(indexed uint256,indexed bytes32,indexed bytes32,uint256)
+        - event: SongPurchased(indexed uint256,indexed bytes32,indexed bytes32,uint256,bool)
           handler: handleSongPurchased
         - event: SongPriceUpdated(indexed uint256,uint256)
           handler: handleSongPriceUpdated

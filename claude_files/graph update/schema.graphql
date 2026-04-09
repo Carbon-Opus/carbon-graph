@@ -131,6 +131,7 @@ type ProtectionEvent @entity(immutable: true) {
 type EmergencyWithdrawal @entity(immutable: true) {
   id: ID! # transaction hash + log index
   token: Token!
+  sender: Bytes!
   to: Bytes!
   amount: BigInt!
   timestamp: BigInt!
