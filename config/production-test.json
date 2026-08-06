@@ -1,0 +1,13 @@
+{
+  "network": "somnia",
+  "carbonOpusAddress": "0x35D46329504D7932C53DdBa267d068b55F745F52",
+  "carbonOpusStartBlock": 377912961,
+  "carbonCoinDexAddress": "0xFeCd92Eb8Da13F514D36EeA72E0d82Bc2539Fe31",
+  "carbonCoinDexStartBlock": 377912695,
+  "carbonCoinConfigAddress": "0x951dC5368D9E9bAC32b23fEeb14763bE82583D05",
+  "carbonCoinConfigStartBlock": 377912632,
+  "carbonCoinProtectionAddress": "0x701Fc1756d65C2704D498b4eA68eBb9129806B45",
+  "carbonCoinProtectionStartBlock": 377912823,
+  "carbonCoinLauncherAddress": "0x307aB9b7cE20e0A316CD16A6d367AeE06A7d8cAe",
+  "carbonCoinLauncherStartBlock": 377912899
+}

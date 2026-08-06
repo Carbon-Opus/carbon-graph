@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: CarbonOpus
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x383AdAe8837f6Ef807d59b6cd3FB9a914348e6b2"
+      address: "0x35D46329504D7932C53DdBa267d068b55F745F52"
       abi: CarbonOpus
-      startBlock: 352531474
+      startBlock: 377912961
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -50,11 +50,11 @@ dataSources:
       file: ./src/carbonOpusMapping.ts
   - kind: ethereum
     name: CarbonCoinLauncher
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x65B9C4e18631e7f6331EC6c3813c082265fdEbd2"
+      address: "0x307aB9b7cE20e0A316CD16A6d367AeE06A7d8cAe"
       abi: CarbonCoinLauncher
-      startBlock: 351057942
+      startBlock: 377912899
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -94,11 +94,11 @@ dataSources:
       file: ./src/carbonCoinLauncherMapping.ts
   - kind: ethereum
     name: CarbonCoinProtection
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x066DC275F91a2946C0eCCF7e024d44E3a776D140"
+      address: "0x701Fc1756d65C2704D498b4eA68eBb9129806B45"
       abi: CarbonCoinProtection
-      startBlock: 351057915
+      startBlock: 377912823
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -138,11 +138,11 @@ dataSources:
       file: ./src/carbonCoinProtectionMapping.ts
   - kind: ethereum
     name: CarbonCoinConfig
-    network: somnia-testnet
+    network: somnia
     source:
-      address: "0x3418FE1D6983BD939A4489AF9B69Dad08d937119"
+      address: "0x951dC5368D9E9bAC32b23fEeb14763bE82583D05"
       abi: CarbonCoinConfig
-      startBlock: 351057764
+      startBlock: 377912632
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -158,11 +158,11 @@ dataSources:
       file: ./src/carbonCoinConfigMapping.ts
   # - kind: ethereum
   #   name: CarbonCoinDex
-  #   network: somnia-testnet
+  #   network: somnia
   #   source:
-  #     address: "0xcDBD208D03b73451Ad44E16eAb82AFD5dd99936f"
+  #     address: "0xFeCd92Eb8Da13F514D36EeA72E0d82Bc2539Fe31"
   #     abi: CarbonCoinDex
-  #     startBlock: 351057831
+  #     startBlock: 377912695
   #   mapping:
   #     kind: ethereum/events
   #     apiVersion: 0.0.7
@@ -189,7 +189,7 @@ dataSources:
 templates:
   - kind: ethereum
     name: CarbonCoin
-    network: somnia-testnet
+    network: somnia
     source:
       abi: CarbonCoin
     mapping:
